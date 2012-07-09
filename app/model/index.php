@@ -1,0 +1,1 @@
+<?php echo "LIP Framework Model Folder";
