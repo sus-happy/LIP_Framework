@@ -28,7 +28,7 @@ $config["index"]["func"] = "index";
 /*
  * Site Settings
  */
-$config["site"]["name"] = "LH Design Check Page";
+$config["site"]["name"] = "LIP Framework System";
 $config["site"]["url"] = $config["system"]["base_url"];
 $config["site"]["analyze"] = "MOD_REWRITE"; // PATH_INFO, MOD_REWRITE
 

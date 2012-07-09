@@ -1,5 +1,7 @@
 # LIP Framework (alpha)
 
+Since 12/07/01
+
 ## How to use.
 
     $LIP = new LIP_Boot();
@@ -10,4 +12,6 @@
     define( "RIP_AUTO_CONTROL", TRUE );
     new LIP_Boot();
 
-# This is Demo System
+## History
+
+- 2012/07/09 v0.0.1 Published
