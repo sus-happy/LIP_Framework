@@ -42,7 +42,7 @@ class LIP_Config {
 					return sprintf( "%sindex.php/%s", $this->base_url(), $path );
 				break;
 				case "MOD_REWRITE":
-					return sprintf( "%s%s/", $this->base_url(), $path );
+					return sprintf( "%s%s", $this->base_url(), $path );
 				break;
 			}
 			return FALSE;

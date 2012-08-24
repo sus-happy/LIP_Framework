@@ -26,9 +26,6 @@ class LIP_Controler extends LIP_Object {
 		require_once( sprintf( "%s/model/%s.php", app_dir(), $model ) );
 		$m = "LM_".ucfirst( $model );
 		$m = new $m();
-		if(! isset( $this->$model ) ) {
-			$this->$model =& $m;
-		}
 		$this->m[$model] =& $m;
 		return TRUE;
 	}
@@ -69,6 +66,7 @@ class LIP_Controler extends LIP_Object {
 			foreach( $obj as $key => $val ) {
 				$obj[$key] = $this->sanityze( $val );
 			}
+			return $obj;
 		} else {
 			return htmlspecialchars( $obj, ENT_QUOTES );
 		}

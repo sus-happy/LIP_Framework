@@ -8,7 +8,9 @@ class LIP_Model extends LIP_Object {
 	var $table = NULL,
 		$db    = NULL,
 		$sql   = array(),
-		$args  = array();
+		$args  = array(),
+		$save  = FALSE,
+		$unsave_group = array( "SELECT", "INSERT", "UPDATE", "DELETE" );
 	
 	function LIP_Model() {
 		$LIP =& get_instance();
@@ -21,13 +23,19 @@ class LIP_Model extends LIP_Object {
 	}
 	/* SELECT作成 */
 	function select( $column = "*", $where = NULL ) {
-		if(! empty( $where )  )
+		return $this->select_from( $this->table, $column, $where );
+	}
+	function select_from( $table, $column = "*", $where = NULL ) {
+		if(! empty( $where ) )
 			$this->add_where( $where );
-		$this->sql["SELECT"] = sprintf( "SELECT %s FROM `%s`", $column, $this->table );
+		$this->sql["SELECT"] = sprintf( "SELECT %s FROM `%s`", $column, $table );
 		return $this->sql["SELECT"];
 	}
 	/* INSERT作成 */
 	function insert( $data ) {
+		return $this->insert_to( $this->table, $data );
+	}
+	function insert_to( $table, $data ) {
 		if( is_array( $data ) || is_object( $data ) ) {
 			$fields = array();
 			$keys = array();
@@ -36,12 +44,15 @@ class LIP_Model extends LIP_Object {
 				$keys[] = "?";
 				$this->args["INSERT"][] = $param;
 			}
-			$this->sql["INSERT"] = sprintf( "INSERT INTO `%s` (%s) VALUES(%s)", $this->table, implode(",", $fields), implode(",", $keys) );
+			$this->sql["INSERT"] = sprintf( "INSERT INTO `%s` (%s) VALUES(%s)", $table, implode(",", $fields), implode(",", $keys) );
 			return $this->exec();
 		} else return FALSE;
 	}
 	/* UPDATE作成 */
 	function update( $data, $where = NULL ) {
+		return $this->update_to( $this->table, $data, $where );
+	}
+	function update_to( $table, $data, $where = NULL ) {
 		if( is_array( $data ) || is_object( $data ) ) {
 			if(! empty( $where )  )
 				$this->add_where( $where );
@@ -50,14 +61,29 @@ class LIP_Model extends LIP_Object {
 				$upparams[] = sprintf( "`%s`=?", $field );
 				$this->args["UPDATE"][] = $param;
 			}
-			$this->sql["UPDATE"] = sprintf( "UPDATE `%s` SET %s", $this->table, implode(",", $upparams) );
+			$this->sql["UPDATE"] = sprintf( "UPDATE `%s` SET %s", $table, implode(",", $upparams) );
 			return $this->exec();
 		} else return FALSE;
 	}
+	function replace( $column, $from, $to, $where = NULL ) {
+		return $this->replace_to( $this->table, $column, $from, $to, $where );
+	}
+	function replace_to( $table, $column, $from, $to, $where ) {
+		if(! empty( $where )  )
+			$this->add_where( $where );
+		$this->sql["UPDATE"] = sprintf( "UPDATE `%s` SET `%s` = REPLACE( `%s`, ?, ? )", $table, $column, $column );
+		$this->args["UPDATE"][] = $from;
+		$this->args["UPDATE"][] = $to;
+		return $this->exec();
+	}
 	/* DELETE作成 */
-	function delete( $where ) {
-		$this->add_where( $where );
-		$this->sql["DELETE"] = sprintf( "DELETE FROM `%s`", $this->table );
+	function delete( $where = NULL ) {
+		return $this->delete_to( $this->table, $where );
+	}
+	function delete_to( $table, $where = NULL ) {
+		if(! empty( $where ) )
+			$this->add_where( $where );
+		$this->sql["DELETE"] = sprintf( "DELETE FROM `%s`", $table );
 		return $this->exec();
 	}
 	/* WHERE追加 */
@@ -69,6 +95,35 @@ class LIP_Model extends LIP_Object {
 		} else {
 			$this->sql["WHERE"][] = sprintf( "`%s`=?", $target );
 			$this->args["WHERE"][] = $param;
+		}
+	}
+	function add_where_in( $target, $param ) {
+		if( is_array( $param ) ) {
+			foreach( $param as $val ) {
+				$pcnt[] = "?";
+				$this->args["WHERE"][] = $val;
+			}
+			$this->sql["WHERE"][] = sprintf( "`%s` IN (%s)", $target, implode(',', $pcnt) );
+		} else {
+			// エラー
+		}
+	}
+	function add_where_like( $target, $param = NULL ) {
+		if( empty( $param ) && ( is_array( $target ) || is_object( $target ) ) ) {
+			foreach( $target as $field => $param ) {
+				$this->add_where_like( $field, $param );
+			}
+		} else {
+			$this->sql["WHERE"][] = sprintf( "`%s` LIKE ?", $target );
+			$this->args["WHERE"][] = "%".$param."%";
+		}
+	}
+	function add_option_where( $target, $param ) {
+		if( is_array( $param ) || is_object( $param ) ) {
+			preg_match( '/{(.*)}/', serialize( $param ), $match );
+			$this->add_where_like( $target, $match[1] );
+		} else {
+			// エラー
 		}
 	}
 	/* ORDER追加 */
@@ -97,9 +152,24 @@ class LIP_Model extends LIP_Object {
 			return sprintf( "JOIN `%s` USING( `%s` )", $table, $key );
 		}
 	}
+	/* GROUP設定 */
+	function add_group( $key ) {
+		if( is_object( $key ) ) {
+			return FALSE;
+		} else if( is_array( $key ) ) {
+			if(! is_array( $this->sql["GROUP"] ) ) $this->sql["GROUP"] = array();
+			$this->sql["GROUP"] = array_merge( $this->sql["GROUP"], $key);
+		} else {
+			$this->sql["GROUP"][] = $key;
+		}
+	}
 	/* LIMIT設定 */
 	function set_limit( $limit, $offset=NULL ) {
-		$this->db->setLimit( $limit, $offset );
+		if( is_int( $limit ) )
+			$this->limit = $limit;
+		if( is_int( $offset ) )
+			$this->offset = $offset;
+		// $this->db->setLimit( $limit, $offset );
 	}
 	
 	/* 全結果取得 */
@@ -109,21 +179,59 @@ class LIP_Model extends LIP_Object {
 	/* 一行取得 */
 	function get_line() {
 		$result = $this->get_result();
-		return $result->fetchRow();
+		if( $result ) {
+			return $result->fetch();
+		} else return FALSE;
+	}
+
+	function save_condition() {
+		$this->save = TRUE;
+	}
+	function unsave_condition() {
+		$this->save = FALSE;
 	}
 	
 	/* 実行 */
 	function exec() {
 		$query = $this->make_sql();
 		if(! empty( $query ) ) {
-			$this->sql_init();
-
-			$sth = $this->db->prepare( $query["sql"] );
-			if (PEAR::isError($sth)){
-				echo $sth->getDebugInfo();
-				exit();
+			if(! empty( $this->limit ) ) {
+				if(! empty( $this->offset ) ) {
+					$query["sql"] .= " LIMIT ?, ?";
+				} else {
+					$query["sql"] .= " LIMIT ?";
+				}
 			}
-			return $sth->execute( $query["args"] );
+
+			try {
+				$sth = $this->db->prepare( $query["sql"] );
+			} catch( PDOException $e ) {
+				echo 'Prepare failed: ' . $e->getMessage();
+			}
+			foreach ( $query["args"] as $key => $value ) {
+				$sth->bindValue( $key+1, $value );
+			}
+			if(! empty( $this->limit ) ) {
+				$lc = count( $query["args"] );
+				if(! empty( $this->offset ) ) {
+					$lc++;
+					$sth->bindValue( $lc, $this->offset, PDO::PARAM_INT );
+				}
+				$lc++;
+				$sth->bindValue( $lc, $this->limit, PDO::PARAM_INT );
+			}
+			if( $sth ) {
+				if(! $sth->execute() ) {
+					echo 'Execute failed: ';
+					var_dump( $sth->errorInfo() );
+					var_dump( $query );
+					exit();
+				}
+				$sth->setFetchMode( PDO::FETCH_ASSOC );
+			}
+			
+			$this->sql_init();
+			return $sth;
 		} return FALSE;
 	}
 	/* SQL組み立て */
@@ -151,6 +259,10 @@ class LIP_Model extends LIP_Object {
 				$sql .= " WHERE 1=1 AND ".implode( " AND ", $this->sql["WHERE"] );
 				$this->push_args( $args, "WHERE" );
 			}
+			if( isset( $this->sql["GROUP"] ) ) {
+				$sql .= sprintf( " GROUP BY `%s`", implode( "`,`", $this->sql["GROUP"] ) );
+				$this->push_args( $args, "ORDER" );
+			}
 			if( isset( $this->sql["ORDER"] ) ) {
 				$sql .= " ORDER BY ".implode( ",", $this->sql["ORDER"] );
 				$this->push_args( $args, "ORDER" );
@@ -167,16 +279,29 @@ class LIP_Model extends LIP_Object {
 	}
 	/* 変数初期化 */
 	function sql_init() {
-		$this->sql = array();
-		$this->args = array();
+		if( $this->save ) {
+			foreach( $this->unsave_group as $unsave ) {
+				unset( $this->sql[$unsave] );
+				unset( $this->args[$unsave] );
+			}
+		} else {
+			$this->sql = array();
+			$this->args = array();
+			$this->limit = NULL;
+			$this->offset = NULL;
+		}
 	}
 	
 	function get_count() {
-		$this->select( "COUNT(*) AS line" );
+		$this->get_count_from( $this->table );
+	}
+	function get_count_from( $table ) {
+		$this->select_from( $table, "COUNT(*) AS line" );
 		$result = $this->get_line();
 		return $result["line"];
 	}
 	function get_last_insertid() {
-		return $this->db->queryOne("SELECT LAST_INSERT_ID() AS id");
+		//return $this->db->queryOne("SELECT LAST_INSERT_ID() AS id");
+		return $this->db->lastInsertId();
 	}
 }

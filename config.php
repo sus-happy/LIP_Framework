@@ -16,7 +16,7 @@ $config["system"]["app_dir"] = dirname(__FILE__)."/app";
 $config["auth"]["path"] = "admin";
 $config["auth"]["login"] = "admin/login";
 $config["auth"]["check"] = array(
-	// array( "(admin.*)", "(.*)" ),
+	array( "(admin.*)", "(.*)" ),
 );
 
 /*
@@ -36,7 +36,7 @@ $config["site"]["analyze"] = "MOD_REWRITE"; // PATH_INFO, MOD_REWRITE
  * Database Settings
  */
 $config["database"]["enable"] = TRUE;
-$config["database"]["type"] = "mysqli";
+$config["database"]["type"] = "mysql";
 $config["database"]["host"] = "localhost";
 $config["database"]["user"] = "user_name";
 $config["database"]["pass"] = "password";
@@ -52,12 +52,12 @@ $config["session"]["sess_cookie_name"] = "ex_session";
  * Use Plugin Programs
  */
 $config["plugin"]["dir"] = $config["system"]["app_dir"]."/plugin";
-$config["plugin"]["use"] = array( "spyc", "function" );
+$config["plugin"]["use"] = array();
 
 /*
  * Use Library Programs
  */
-$config["library"]["use"] = array( "file", "pager", "session" );
+$config["library"]["use"] = array( "session" );
 
 /*
  * Import Files

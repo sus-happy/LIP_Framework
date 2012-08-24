@@ -19,18 +19,19 @@ class LIP_Boot extends LIP_Object {
 
 		/* PEAR::MDB2 */
 		if( $LIP->config->config("database", "enable") ) {
-			set_include_path(get_include_path() .PATH_SEPARATOR. $LIP->config->config("system", "app_dir"). "/LIP/include/PEAR/" );
-			require_once 'MDB2.php';
-			$LIP->db = MDB2::connect(
-				sprintf( '%s://%s:%s@%s/%s?charset=%s',
-					$LIP->config->config("database", "type"),
+			try {
+				$LIP->db = new PDO(
+					sprintf( '%s:host=%s;dbname=%s',
+						$LIP->config->config("database", "type"),
+						$LIP->config->config("database", "host"),
+						$LIP->config->config("database", "dbname")
+					),
 					$LIP->config->config("database", "user"),
-					$LIP->config->config("database", "pass"),
-					$LIP->config->config("database", "host"),
-					$LIP->config->config("database", "dbname"),
-					$LIP->config->config("database", "charset")
-				)
-			);
+					$LIP->config->config("database", "pass")
+				);
+			} catch( PDOException $e ) {
+				echo 'Connection failed: ' . $e->getMessage();
+			}
 		}
 		/* PEAR::MDB2 */
 
@@ -120,10 +121,11 @@ class LIP_Boot extends LIP_Object {
 			}
 		} } else return "LOGIN";
 		
-		/*$ss = new LIP_Session( config("session", "sess_cookie_name") );
-		if( $ss->get_session("user_id") ) {
-			return "LOGIN";
-		}*/
+		if( $ss = load_library( "session" ) ) {
+			if( $ss->get_session("user_id") ) {
+				return "LOGIN";
+			}
+		}
 		return "NO_LOGIN";
 	}
 
@@ -146,7 +148,8 @@ class LIP_Boot extends LIP_Object {
 		
 		require_once( $file );
 		$cls = new $this->class();
-		$cls->load_func( $this->func, $this->param );
+		if( $this->func )
+			$cls->load_func( $this->func, $this->param );
 		return $cls;
 	}
 
