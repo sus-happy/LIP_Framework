@@ -27,7 +27,7 @@ class LIP_Url {
 				$url = getenv("PATH_INFO");
 			break;
 			case "MOD_REWRITE":
-				$url = str_replace( $_SERVER["REQUEST_URI"], base_dir(), "" );
+				$url = str_replace( base_dir(), "", $_SERVER["REQUEST_URI"] );
 			break;
 		}
 		if(! empty( $url ) && $url !== "/" ) {
