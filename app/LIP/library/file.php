@@ -4,7 +4,7 @@
  * /app/LIP/library/file.php
  */
 
-class LL_File {
+class LL_File extends LIP_Object {
 	/* アップロードディレクトリ */
 	var $up_dir = "";
 	/* アップ制限 */
@@ -55,12 +55,12 @@ class LL_File {
 			$extension = pathinfo($_FILES[$name]["name"], PATHINFO_EXTENSION);
 			if( $_FILES[$name]["size"] > $this->max_file_size*1024*1024 ) {
 				$flag = false;
-				$this->error_message[$name][] .= sprintf( "%sのサイズが大きすぎます（最大%dMB）", $label, $this->max_file_size );
+				$this->push_error( $name, sprintf( "%sのサイズが大きすぎます（最大%dMB）", $label, $this->max_file_size ) );
 			}
 			if( !empty($this->file_type) ) {
 				if(! in_array($extension, $this->file_type) ) {
 					$flag = false;
-					$this->error_message[$name][] .= sprintf( "%sに非対応のファイル型式が選択されています（対応ファイル：%s）", $label, implode( ",", $this->file_type ) );
+					$this->push_error( $name, sprintf( "%sに非対応のファイル型式が選択されています（対応ファイル：%s）", $label, implode( ",", $this->file_type ) ) );
 				}
 			}
 			
@@ -75,12 +75,12 @@ class LL_File {
 					$this->setup_data( $name, $data );
 				} else {
 					$flag = FALSE;
-					$this->error_message[$name][] = sprintf( "%sのアップロードに失敗しました", $label );
+					$this->push_error( $name, sprintf( "%sのアップロードに失敗しました", $label ) );
 				}
 			}
 		} else {
 			$flag = FALSE;
-			$this->error_message[$name][] = sprintf( "%sが選択されていません", $label );
+			$this->push_error( $name, sprintf( "%sが選択されていません", $label ) );
 		}
 		return $flag;
 	}
@@ -164,9 +164,5 @@ class LL_File {
 	function delete( $name ) {
 		$file_place = sprintf( "%s/%s", $this->up_dir, $name );
 		return @ unlink( $file_place );
-	}
-	
-	function get_error_message( $name ) {
-		return $this->error_message[$name];
 	}
 }

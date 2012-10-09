@@ -13,9 +13,8 @@
  *   )
  * )
  */
-class LL_Validator {
+class LL_Validator extends LIP_Object {
 	var $check,
-		$error,
 		$data,
 		$character = "utf-8";
 
@@ -34,10 +33,7 @@ class LL_Validator {
 				/* success :) */
 			} else {
 				$flag = FALSE;
-				if( !is_array($this->error) ) {
-					$this->error = array();
-				}
-				$this->error[ $key ] = $err;
+				$this->push_error( $key, $err );
 			}
 		} }
 		return $flag;
@@ -182,58 +178,5 @@ class LL_Validator {
 				break;
 		}        
 		return TRUE;
-	}
-
-	function dump() {
-		var_dump($this->check);
-	}
-	
-	function pushError( $key, $message ) {
-		if( !empty( $this->error[$key] ) ) {
-			if( is_array( $this->error[$key] ) ) {
-				if( is_array( $message ) )
-					$this->error[$key] += $message;
-				else
-					$this->error[$key][] = $message;
-			} else {
-				$tmp = $this->error[$key];
-				unset( $this->error[$key] );
-				if( is_array( $message ) ) {
-					$this->error[$key][] = $tmp;
-					$this->error[$key] += $message;
-				} else
-					$this->error[$key] = array( $tmp, $message );
-			}
-		} else
-			$this->error[$key] = $message;
-	}
-	function getErrorText( $key, $before = '<div class="caution">', $after = '</div>', $glue = '' ) {
-		if( !empty( $this->error ) ) {
-			if( !empty($this->error[$key]) ) {
-				if( is_array( $this->error[$key] ) ) {
-					return $before.implode( $glue, $this->error[$key] ).$after;
-				}
-				return $before.$this->error[$key].$after;
-			}
-		}
-		return FALSE;
-	}
-	function getErrorTextList() {
-		if( !empty( $this->error ) ) {
-			$result = "<ul>";
-			foreach ( $this->error as $key => $val ) {
-				$result .= $this->getErrorText( $key, '<li>', '</li>', '</li><li>' );
-			}
-			return $result .= "</ul>";
-		}
-		return FALSE;
-	}
-	function getCheckError($key) {
-		if( !empty( $this->error ) ) {
-			if( !empty($this->error[$key]) ) {
-				return "caution";
-			}
-		}
-		return FALSE;
 	}
 }
