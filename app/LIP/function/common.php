@@ -18,3 +18,7 @@ function load_library( $library ) {
 function make_nonce( $label ) {
 	return sha1( $label.mt_rand() );
 }
+
+function is_authorized() {
+	return ( LIP_AUTH_CHECKED == config( 'auth', 'key' ) );
+}

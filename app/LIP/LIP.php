@@ -11,8 +11,13 @@ class LIP {
 		self::$instance =& $this;
 	}
 	public static function &get_instance() {
+		if( empty( self::$instance ) )
+			new LIP();
 		return self::$instance;
-	} 
+	}
+	public function set_method( $key, $class ) {
+		$this->{$key} = $class;
+	}
 }
 
 function &get_instance() {

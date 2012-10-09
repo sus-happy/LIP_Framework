@@ -10,12 +10,15 @@ class LIP_Config {
 		global $config;
 		$this->c_data = $config;
 	}
-	function config( $data, $param, $outer = FALSE ) {
+	function config( $data, $param = NULL, $outer = FALSE ) {
 		if( $outer ) {
 			if( in_array( $data, $this->c_data["hide"] ) )
 				return FALSE;
 		}
-		return $this->c_data[$data][$param];
+		if (! empty( $param ) )
+			return $this->c_data[$data][$param];
+		else
+			return $this->c_data[$data];
 	}
 
 	

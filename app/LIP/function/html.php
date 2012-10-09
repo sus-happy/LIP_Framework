@@ -28,40 +28,40 @@ function make_attribute( $attributes ) {
 	} else return "";
 }
 
-function checkbox( $name, $value, $flag=FALSE ) {
-	$o = array( "type"=>"checkbox", "name"=>$name, "value"=>$value );
+function checkbox( $name, $value, $flag=FALSE, $o=array() ) {
+	$o = array_merge( $o, array( "type"=>"checkbox", "name"=>$name, "value"=>$value ) );
 	if( $flag ) $o["checked"] = "checked";
 	return makeHTML_single( "input", $o );
 }
 
-function radio( $name, $value, $flag=FALSE ) {
-	$o = array( "type"=>"radio", "name"=>$name, "value"=>$value );
+function radio( $name, $value, $flag=FALSE, $o=array() ) {
+	$o = array_merge( $o, array( "type"=>"radio", "name"=>$name, "value"=>$value ) );
 	if( $flag ) $o["checked"] = "checked";
 	return makeHTML_single( "input", $o );
 }
 
-function input( $o ) {
-	$o = array_merge( $o, array( "type"=>"text" ) );
+function input( $name, $value, $o=array() ) {
+	$o = array_merge( $o, array( "name"=>$name, "value"=>$value, "type"=>"text" ) );
 	return makeHTML_single( "input", $o );
 }
 
-function password( $o ) {
-	$o = array_merge( $o, array( "type"=>"password" ) );
+function password( $name, $value, $o=array() ) {
+	$o = array_merge( $o, array( "name"=>$name, "value"=>$value, "type"=>"password" ) );
 	return makeHTML_single( "input", $o );
 }
 
-function hidden( $name, $value ) {
-	return makeHTML_single( "input", array( "type"=>"hidden", "name"=>$name, "value"=>$value ) );
+function hidden( $name, $value, $o=array() ) {
+	$o = array_merge( $o, array( "type"=>"hidden", "name"=>$name, "value"=>$value ) );
+	return makeHTML_single( "input", $o );
 }
 
-function textarea( $o ) {
-	$value = $o["value"];
-	unset( $o["value"] );
+function textarea( $name, $value, $o=array() ) {
+	$o["name"] = $name;
 	return makeHTML( "textarea", $o, $value, FALSE );
 }
 
-function upload( $o ) {
-	$o = array_merge( $o, array( "type"=>"file" ) );
+function upload( $name, $o=array() ) {
+	$o = array_merge( $o, array( "name"=>$name, "type"=>"file" ) );
 	return makeHTML_single( "input", $o );
 }
 

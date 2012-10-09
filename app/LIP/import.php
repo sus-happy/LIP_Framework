@@ -11,6 +11,7 @@ do {
 	require_once( $dir."/include/object.php" );
 	require_once( $dir."/include/boot.php" );
 	require_once( $dir."/include/load.php" );
+	require_once( $dir."/include/url.php" );
 	require_once( $dir."/include/config.php" );
 	require_once( $dir."/include/controller.php" );
 	require_once( $dir."/include/model.php" );

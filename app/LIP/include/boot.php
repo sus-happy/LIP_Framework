@@ -8,30 +8,22 @@
  */
 
 class LIP_Boot extends LIP_Object {
-	var $control, $mode, $func, $param, $file, $class;
+	var $control, $LIP, $file, $class;
 	function LIP_Boot() {
-		$LIP =& get_instance();
-		
+		$this->LIP =& get_instance();
+
 		/* 設定ファイル読み込み */
-		$LIP->config = new LIP_Config();
+		$this->LIP->set_method( 'config', new LIP_Config() );
 		/* ライブラリローダー追加 */
-		$LIP->load = new LIP_Load();
+		$this->LIP->set_method( 'load', new LIP_Load() );
+		/* URL解析追加 */
+		$this->LIP->set_method( 'url', new LIP_Url() );
 
 		/* PEAR::MDB2 */
-		if( $LIP->config->config("database", "enable") ) {
-			try {
-				$LIP->db = new PDO(
-					sprintf( '%s:host=%s;dbname=%s',
-						$LIP->config->config("database", "type"),
-						$LIP->config->config("database", "host"),
-						$LIP->config->config("database", "dbname")
-					),
-					$LIP->config->config("database", "user"),
-					$LIP->config->config("database", "pass")
-				);
-			} catch( PDOException $e ) {
-				echo 'Connection failed: ' . $e->getMessage();
-			}
+		if( $this->LIP->config->config("database", "enable") ) {
+			/* データベースクラス追加 */
+			require_once( app_dir().'/LIP/include/database.php' );
+			$this->LIP->set_method( 'db', new LIP_Database( $this->LIP->config->config( 'database' ) ) );
 		}
 		/* PEAR::MDB2 */
 
@@ -39,9 +31,9 @@ class LIP_Boot extends LIP_Object {
 		$this->use_library();
 		
 		if( RIP_AUTO_CONTROL === TRUE )
-			$this->url_analyze();
+			$this->LIP->url->url_analyze();
 		
-		switch( $this->check_auth() ) {
+		switch( $this->LIP->url->check_auth() ) {
 			case "LOGIN":
 				// It is Logined :D
 			break;
@@ -56,7 +48,8 @@ class LIP_Boot extends LIP_Object {
 		}
 		
 		if( RIP_AUTO_CONTROL === TRUE )
-			$this->get_control();
+			return $this->LIP->url->get_control();
+		return TRUE;
 	}
 
 	/*
@@ -80,82 +73,5 @@ class LIP_Boot extends LIP_Object {
 		foreach ( config( "library", "use" ) as $value ) {
 			load_library( $value );
 		}
-	}
-	
-	/*
-	 * void url_analyze()
-	 * PATH_INFOを解析
-	 */
-	function url_analyze() {
-		switch( config("site", "analyze") ) {
-			case "PATH_INFO":
-				$url = $_SERVER["PATH_INFO"];
-			break;
-			case "MOD_REWRITE":
-				$url = $_SERVER["REQUEST_URI"];
-			break;
-		}
-		if(! empty( $url ) && $url !== "/" ) {
-			$this->param = explode( "/", $url );
-			array_shift( $this->param );
-			$this->mode = array_shift( $this->param );
-			$this->func = array_shift( $this->param );
-			if( empty( $this->func ) )
-				$this->func = config( "index", "func" );
-		} else {
-			$this->mode = config( "index", "path" );
-			$this->func = config( "index", "func" );
-		}
-	}
-	
-	
-	function check_auth() {
-		$pass = config( "auth", "check" );
-		if( $pass ) { foreach( $pass as $p ) {
-			if(! preg_match( $p[0], $this->mode ) && $p[0] !== "*" ) {
-				return "LOGIN";
-			} else {
-				if (! preg_match( $p[1], $this->func ) && $p[1] !== "*" ) {
-					return "LOGIN";
-				}
-			}
-		} } else return "LOGIN";
-		
-		if( $ss = load_library( "session" ) ) {
-			if( $ss->get_session("user_id") ) {
-				return "LOGIN";
-			}
-		}
-		return "NO_LOGIN";
-	}
-
-	function get_control( $mode=NULL, $func=NULL ) {
-		if( $mode ) $this->mode = $mode;
-		if( $func ) $this->func = $func;
-
-		$this->mode_convert();
-		
-		$file = sprintf( "%s/control/%s.php", app_dir(), $this->mode );
-		if(! file_exists($file) ) {
-			$file = sprintf( "%s/LIP/control/%s.php", app_dir(), $this->mode );
-			if(! file_exists($file) ) {
-				$this->mode = "notfound";
-				$this->class = "LC_".ucfirst( $this->mode );
-				$this->func = "index";
-				$file = sprintf( "%s/LIP/control/404.php", app_dir() );
-			}
-		}
-		
-		require_once( $file );
-		$cls = new $this->class();
-		if( $this->func )
-			$cls->load_func( $this->func, $this->param );
-		return $cls;
-	}
-
-	function mode_convert() {
-		$param = explode( ".", $this->mode );
-		$this->mode = implode( "/", $param );
-		$this->class = "LC_".implode( "_", array_map( "ucfirst", $param ) );
 	}
 }

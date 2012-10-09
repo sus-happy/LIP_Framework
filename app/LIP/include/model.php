@@ -14,7 +14,7 @@ class LIP_Model extends LIP_Object {
 	
 	function LIP_Model() {
 		$LIP =& get_instance();
-		$this->db = $LIP->db;
+		$this->db = $LIP->db->get_database();
 	}
 	
 	/* クエリ直接実行 */
@@ -208,6 +208,12 @@ class LIP_Model extends LIP_Object {
 			} catch( PDOException $e ) {
 				echo 'Prepare failed: ' . $e->getMessage();
 			}
+
+			if(! $sth ) {
+				echo "PDO::errorInfo():";
+				print_r($this->db->errorInfo());
+			}
+
 			foreach ( $query["args"] as $key => $value ) {
 				$sth->bindValue( $key+1, $value );
 			}

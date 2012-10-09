@@ -39,3 +39,13 @@ function get_template( $path, $ext = "php" ) {
 	$LIP =& get_instance();
 	return $LIP->config->get_template( $path, $ext );
 }
+
+function get_mode() {
+	$LIP =& get_instance();
+	return $LIP->url->get_mode();
+}
+
+function get_func() {
+	$LIP =& get_instance();
+	return $LIP->url->get_func();
+}
