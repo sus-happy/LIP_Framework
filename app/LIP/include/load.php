@@ -4,10 +4,13 @@
  * /app/LIP/include/load.php
  */
 
-class LIP_Load {
-	function LIP_Load() {
+class LIP_Load extends LIP_Object {
+	/* ####################################
+	   PUBLIC FUNCTION
+	#################################### */
+	public function __construct() {
 	}
-	function load_library( $library ) {
+	public function load_library( $library ) {
 		$LIP =& get_instance();
 		if( @array_key_exists( $library, $LIP->l ) ) {
 			$l =& $LIP->l[$library];
@@ -30,5 +33,12 @@ class LIP_Load {
 			$LIP->l[$library] =& $l;
 		}
 		return $l;
+	}
+}
+
+if(! function_exists( 'load_library' ) ) {
+	function load_library( $library ) {
+		$LIP =& get_instance();
+		return $LIP->load->load_library( $library );
 	}
 }

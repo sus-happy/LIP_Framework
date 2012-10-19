@@ -5,51 +5,51 @@
  */
 
 class LL_File extends LIP_Object {
-	/* アップロードディレクトリ */
-	var $up_dir = "";
-	/* アップ制限 */
-	var $max_file_size = 2, $file_type = array("jpg", "jpeg", "png", "gif");
-	/* アップファイル情報 */
-	var $data = array();
-	/* エラーメッセージ */
-	var $error_message = array();
+			/* アップロードディレクトリ */
+	private $up_dir = "",
+			/* アップ制限 */
+			$max_file_size = 2,
+			$file_type = array("jpg", "jpeg", "png", "gif"),
+			/* アップファイル情報 */
+			$data = array(),
+			/* エラーメッセージ */
+			$error_message = array();
 	
-	function LL_File() {
+	public function __construct() {
 	}
 	
-	function set_upload_dir( $dir ) {
+	public function set_upload_dir( $dir ) {
 		if( is_writable( $dir ) ) {
 			$this->up_dir = $dir;
 			return TRUE;
 		} else return FALSE;
 	}
-	function get_upload_dir() {
+	public function get_upload_dir() {
 		return $this->up_dir;
 	}
 	
-	function set_max_file_size( $size ) {
+	public function set_max_file_size( $size ) {
 		if( is_numeric( $size ) ) {
 			$this->max_file_size = $size;
 			return TRUE;
 		} return FALSE;
 	}
-	function set_file_type( $type ) {
+	public function set_file_type( $type ) {
 		if( is_array( $type ) ) {
 			$this->file_type = $type;
 			return TRUE;
 		} return FALSE;
 	}
 	
-	function setup_data( $name, $data ) {
+	public function setup_data( $name, $data ) {
 		$this->data[$name] = $data;
 	}
-	function get_data( $name ) {
+	public function get_data( $name ) {
 		return $this->data[$name];
 	}
 	
-	function upload( $name, $up_name, $label = "ファイル" ) {
+	public function upload( $name, $up_name, $label = "ファイル" ) {
 		$flag = TRUE;
-		$this->error_message[$name] = NULL;
 		
 		if ( $_FILES[$name]["size"] !== 0 && ! empty( $_FILES[$name] ) ) {
 			$extension = pathinfo($_FILES[$name]["name"], PATHINFO_EXTENSION);
@@ -85,7 +85,7 @@ class LL_File extends LIP_Object {
 		return $flag;
 	}
 
-	function copy( $from, $to ) {
+	public function copy( $from, $to ) {
 		$from_file = sprintf( "%s/%s", $this->up_dir, $from );
 		$to_file = sprintf( "%s/%s", $this->up_dir, $to );
 		return @ copy( $from_file, $to_file );
@@ -94,7 +94,7 @@ class LL_File extends LIP_Object {
 	/*
 	 * サムネイルコピー
 	 */
-	function thum_copy( $idata, $toname, $w = NULL, $h = NULL, $q = 90, $f = FALSE ) {
+	public function thum_copy( $idata, $toname, $w = NULL, $h = NULL, $q = 90, $f = FALSE ) {
 		if( empty( $q ) ) $q = 90;
 
 		if( $idata ) {
@@ -161,7 +161,7 @@ class LL_File extends LIP_Object {
 		}
 	}
 	
-	function delete( $name ) {
+	public function delete( $name ) {
 		$file_place = sprintf( "%s/%s", $this->up_dir, $name );
 		return @ unlink( $file_place );
 	}

@@ -1,5 +1,14 @@
 <?php
 
+// System Debug
+define( 'LIP_DEBUG_MODE', FALSE );
+// Authorize Skip Debug
+define( 'LIP_AUTH_DEBUG_MODE', FALSE );
+if( LIP_DEBUG_MODE === TRUE ) {
+	ini_set( 'error_reporting', E_ALL ^E_NOTICE );
+	ini_set( 'display_errors', TRUE );
+}
+
 $config = array();
 $config["hide"] = array( "system", "database" );
 

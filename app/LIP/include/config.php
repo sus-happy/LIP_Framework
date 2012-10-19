@@ -4,13 +4,17 @@
  * /app/LIP/include/config.php
  */
 
-class LIP_Config {
-	var $c_data = array();
-	function LIP_Config() {
+class LIP_Config extends LIP_Object {
+	private $c_data = array();
+	
+	/* ####################################
+	   PUBLIC FUNCTION
+	#################################### */
+	public function __construct() {
 		global $config;
 		$this->c_data = $config;
 	}
-	function config( $data, $param = NULL, $outer = FALSE ) {
+	public function config( $data, $param = NULL, $outer = FALSE ) {
 		if( $outer ) {
 			if( in_array( $data, $this->c_data["hide"] ) )
 				return FALSE;
@@ -21,24 +25,23 @@ class LIP_Config {
 			return $this->c_data[$data];
 	}
 
-	
 	/* CMSルートディレクトリパス */
-	function base_dir() {
+	public function base_dir() {
 		return $this->config( "system", "base_dir" );
 	}
 
 	/* CMSアプリケーションディレクトリパス */
-	function app_dir() {
+	public function app_dir() {
 		return $this->config( "system", "app_dir" );
 	}
 
 	/* CMSルートディレクトリURL */
-	function base_url() {
+	public function base_url() {
 		return $this->config( "system", "base_url" );
 	}
 
 	/* CMS内URL生成 */
-	function site_url( $path=NULL ) {
+	public function site_url( $path=NULL ) {
 		if(! empty( $path ) ) {
 			switch( $this->config("site", "analyze") ) {
 				case "PATH_INFO":
@@ -54,7 +57,7 @@ class LIP_Config {
 	}
 
 	/* リダイレクト */
-	function redirect( $path=NULL ) {
+	public function redirect( $path=NULL ) {
 		header( sprintf("Location:%s", $this->site_url( $path ) ) );
 		exit();
 	}
@@ -67,7 +70,7 @@ class LIP_Config {
 	 * 
 	 * @todo ちょっとセキュリティ的に怪しいかも。
 	 */
-	function get_template( $path, $ext = "php" ) {
+	public function get_template( $path, $ext = "php" ) {
 		$file = sprintf( "%s/view/%s.%s", $this->app_dir(), $path, $ext );
 		if(! file_exists( $file ) ) {
 			$file = sprintf( "%s/LIP/view/%s.%s", $this->app_dir(), $path, $ext );

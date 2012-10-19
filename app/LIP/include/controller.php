@@ -5,20 +5,23 @@
  */
 
 class LIP_Controler extends LIP_Object {
-	var $template, $post, $get, $table = "", $session, $file, $m;
-	function LIP_Controler() {
+	protected	$template,
+				$post,
+				$get,
+				$table = "",
+				$m;
+
+	/* ####################################
+	   PUBLIC FUNCTION
+	#################################### */
+	public function __construct() {
 		$this->get_post();
-		/*
-		$this->file = new LIP_File();
-		$this->pager = new LIP_HTML_Pager();
-		$this->session = new LIP_Session( config("session", "sess_cookie_name") );
-		*/
 	}
-	function load_func( $func, $param ) {
+	public function load_func( $func, $param ) {
 		if( is_callable( array( $this, $func ) ) )
 			call_user_func_array( array( $this, $func ), is_array( $param ) ? $param : array( $param ) );
 	}
-	function load_model( $model ) {
+	public function load_model( $model ) {
 		$file = sprintf( "%s/model/%s.php", app_dir(), $model );
 		if( ! file_exists( $file ) ) {
 			return FALSE;
@@ -29,11 +32,15 @@ class LIP_Controler extends LIP_Object {
 		$this->m[$model] =& $m;
 		return TRUE;
 	}
-	function set_template( $path, $ext = "php" ) {
+
+	/* ####################################
+	   PUBLIC FUNCTION
+	#################################### */
+	protected function set_template( $path, $ext = "php" ) {
 		$this->template = get_template( $path, $ext );
 	}
-	function view( $path = NULL, $var = NULL ) {
-		if( !empty( $path ) )
+	protected function view( $path = NULL, $var = NULL ) {
+		if(! empty( $path ) )
 			$this->set_template( $path );
 		if( $this->template ) {
 			if( is_array( $var ) || is_object( $var ) )
@@ -45,11 +52,7 @@ class LIP_Controler extends LIP_Object {
 			return $result;
 		} else return FALSE;
 	}
-	function get_post() {
-		$this->post = $this->sanityze( $_POST );
-		$this->get = $this->sanityze( $_GET );
-	}
-	function check_nonce( $key ) {
+	protected function check_nonce( $key ) {
 		if( ! empty( $this->post[$key] ) ) {
 			$pnonce = $this->post[$key];
 			$snonce = $this->session->get_session($key);
@@ -61,16 +64,12 @@ class LIP_Controler extends LIP_Object {
 			return ( $snonce == $pnonce );
 		} else return FALSE;
 	}
-	function sanityze( $obj ) {
-		if( is_array( $obj ) || is_object( $obj ) ) {
-			foreach( $obj as $key => $val ) {
-				$obj[$key] = $this->sanityze( $val );
-			}
-			return $obj;
-		} else {
-			return htmlspecialchars( $obj, ENT_QUOTES );
-		}
-	}
-	function checkFile() {
+
+	/* ####################################
+	   PRIVATE FUNCTION
+	#################################### */
+	private function get_post() {
+		$this->post = sanityze( $_POST );
+		$this->get = sanityze( $_GET );
 	}
 }

@@ -1,7 +1,9 @@
 <?php
 
 class LIP_Object {
-	function LIP_Object() {
+	private $error;
+
+	public function __construct() {
 	}
 
 	/*
@@ -11,7 +13,7 @@ class LIP_Object {
 		--
 		エラーメッセージの追加
 	*/
-	function push_error( $key, $message ) {
+	public function push_error( $key, $message ) {
 		if( !empty( $this->error[$key] ) ) {
 			if( is_array( $this->error[$key] ) ) {
 			if( is_array( $message ) )
@@ -38,7 +40,7 @@ class LIP_Object {
 		エラーメッセージを取得。
 		"$key"が空の場合は、全てのエラーメッセージを取得。
 	*/
-	function get_error_text( $key = NULL ) {
+	public function get_error_text( $key = NULL ) {
 		if( !empty( $this->error ) ) {
 			if(! $key ) return $this->error;
 			if(! empty($this->error[$key]) ) {
@@ -55,7 +57,7 @@ class LIP_Object {
 		エラーが発生しているかチェック。
 		"$key"が空の場合は、全てのエラーで確認。
 	*/
-	function get_check_error( $key = NULL ) {
+	public function get_check_error( $key = NULL ) {
 		if( !empty( $this->error ) ) {
 			if(! $key ) return TRUE;
 			if(! empty($this->error[$key]) ) {
@@ -74,7 +76,7 @@ class LIP_Object {
 		エラー変数を全表示
 		$hideが正の時は、HTMLのコメントアウトを行なって表示する。
 	*/
-	function error_dump( $hide = FALSE ) {
+	public function error_dump( $hide = FALSE ) {
 		echo $hide ? '<!--' : '<pre>';
 		var_dump($this->check);
 		echo $hide ? '-->' : '</pre>';

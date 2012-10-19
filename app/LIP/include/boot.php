@@ -8,8 +8,15 @@
  */
 
 class LIP_Boot extends LIP_Object {
-	var $control, $LIP, $file, $class;
-	function LIP_Boot() {
+	private $control,
+			$LIP,
+			$file,
+			$class;
+	
+	/* ####################################
+	   PUBLIC FUNCTION
+	#################################### */
+	public function __construct() {
 		$this->LIP =& get_instance();
 
 		/* 設定ファイル読み込み */
@@ -18,6 +25,8 @@ class LIP_Boot extends LIP_Object {
 		$this->LIP->set_method( 'load', new LIP_Load() );
 		/* URL解析追加 */
 		$this->LIP->set_method( 'url', new LIP_Url() );
+		/* アクションフック追加 */
+		$this->LIP->set_method( 'hook', new LIP_Hook() );
 
 		/* PEAR::MDB2 */
 		if( $this->LIP->config->config("database", "enable") ) {
@@ -36,6 +45,7 @@ class LIP_Boot extends LIP_Object {
 		switch( $this->LIP->url->check_auth() ) {
 			case "LOGIN":
 				// It is Logined :D
+				run_hook( 'AUTH_SUCCESS' );
 			break;
 			case "NO_LOGIN":
 				redirect( "login" );
@@ -51,12 +61,15 @@ class LIP_Boot extends LIP_Object {
 			return $this->LIP->url->get_control();
 		return TRUE;
 	}
-
+	
+	/* ####################################
+	   PRIVATE FUNCTION
+	#################################### */
 	/*
 	 * void use_plugin()
 	 * プラグインファイル読み込み
 	 */
-	function use_plugin() {
+	private function use_plugin() {
 		$dir = config( "plugin", "dir" );
 		foreach ( config( "plugin", "use" ) as $value ) {
 			$fname = sprintf( "%s/%s.php", $dir, $value );
@@ -69,7 +82,7 @@ class LIP_Boot extends LIP_Object {
 	 * void use_library()
 	 * ライブラリーファイル読み込み
 	 */
-	function use_library() {
+	private function use_library() {
 		foreach ( config( "library", "use" ) as $value ) {
 			load_library( $value );
 		}

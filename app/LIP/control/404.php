@@ -7,8 +7,8 @@
  */
 
 class LC_Notfound extends LIP_Controler {
-	function LC_Notfound() {
-		parent::LIP_Controler();
+	function __construct() {
+		parent::__construct();
 	}
 	function index() {
 		echo $this->view("404");

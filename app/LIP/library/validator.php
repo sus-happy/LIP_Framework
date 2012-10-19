@@ -14,18 +14,18 @@
  * )
  */
 class LL_Validator extends LIP_Object {
-	var $check,
-		$data,
-		$character = "utf-8";
+	private $check,
+			$data,
+			$character = "utf-8";
 
-	function LL_Validator() {
+	public function __construct() {
 	}
 
-	function setValidateDate($check) {
+	public function setValidateDate($check) {
 		$this->check = $check;
 	}
 	
-	function checkValidation($data) {
+	public function checkValidation($data) {
 		$this->data = $data;
 		$flag = TRUE;
 		if( !empty($this->check) ) { foreach( $this->check as $key=>$val ) {
@@ -39,7 +39,7 @@ class LL_Validator extends LIP_Object {
 		return $flag;
 	}
 	
-	function checkRule($key) {
+	public function checkRule($key) {
 		/*
 			require
 			必須項目指定
@@ -99,7 +99,7 @@ class LL_Validator extends LIP_Object {
 		return FALSE;
 	}
 	
-	function checkRequire($key) {
+	private function checkRequire($key) {
 		if( count($this->check[$key]["require"]["and"])>0 ) {
 			if( $this->checkForceEmpty( $this->data[ $key ] ) ) {
 				return TRUE;
@@ -125,16 +125,16 @@ class LL_Validator extends LIP_Object {
 		return FALSE;
 	}
 	
-	function checkForceEmpty($str) {
+	private function checkForceEmpty($str) {
 		$str = $this->spaceRemove( $str );
 		return !empty( $str );
 	}
 	
-	function spaceRemove( $str ) {
+	private function spaceRemove( $str ) {
 		return str_replace( " ", "", str_replace( "　", "", $str ) );
 	}
 	
-	function checkNumeric($key) {
+	private function checkNumeric($key) {
 		if( empty($this->data[ $key ]) || ( !empty($this->data[ $key ]) && strval($this->data[ $key ]) == strval(intval($this->data[ $key ])) ) ) {
 			if( count($this->check[$key]["num"]["or"])>0 ) {
 				foreach( $this->check[$key]["num"]["or"] as $oKey ) {
@@ -152,13 +152,13 @@ class LL_Validator extends LIP_Object {
 		} else return FALSE;
 	}
 	
-	function checkKana( $key ) {
+	private function checkKana( $key ) {
 		if( !empty($this->data[$key]) )
 			return $this->khCheck( $this->data[$key], "K" );
 		return TRUE;
 	}
 	
-	function khCheck($str,$flag){
+	private function khCheck($str,$flag){
 		mb_regex_encoding($this->character);
 		switch ($flag) {
 			case "H":

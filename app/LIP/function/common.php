@@ -10,15 +10,21 @@ function config( $data, $param ) {
 	return $LIP->config->config( $data, $param, TRUE );
 }
 
-function load_library( $library ) {
-	$LIP =& get_instance();
-	return $LIP->load->load_library( $library );
-}
-
 function make_nonce( $label ) {
 	return sha1( $label.mt_rand() );
 }
 
 function is_authorized() {
 	return ( LIP_AUTH_CHECKED == config( 'auth', 'key' ) );
+}
+
+function sanityze( $obj ) {
+	if( is_array( $obj ) || is_object( $obj ) ) {
+		foreach( $obj as $key => $val ) {
+			$obj[$key] = $this->sanityze( $val );
+		}
+		return $obj;
+	} else {
+		return htmlspecialchars( $obj, ENT_QUOTES );
+	}
 }

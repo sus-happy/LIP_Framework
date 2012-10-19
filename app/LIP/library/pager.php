@@ -5,36 +5,39 @@
  */
 
 class LL_Pager {
-	var $path = NULL, $total = 0, $per_page = 1, $page = 1;
+	private $path = NULL,
+			$total = 0,
+			$per_page = 1,
+			$page = 1;
 	
 	// ページャーラッパー
-	var $wrap = array(
+	private $wrap = array(
 		'before'=> '<div class="pagination pagination-centered"><ul>',
 		'after' => '</ul></div>',
 	);
 	// ページ番号ラッパー
-	var $num_wrap = array(
+	private $num_wrap = array(
 		'before'=> '<li><a href="%link%">&laquo;</a></li>',
 		'after' => '<li><a href="%link%">&raquo;</a></li>',
 		'number'=> '<li><a href="%link%">%number%</a></li>',
 		'active'=> '<li><span>%number%</span></li>',
 	);
 	
-	function LL_Pager() {
+	public function __construct() {
 	}
-	function set_base_path( $path ) {
+	public function set_base_path( $path ) {
 		$this->path = $path;
 	}
-	function set_total_count( $total ) {
+	public function set_total_count( $total ) {
 		$this->total = $total;
 	}
-	function set_per_page( $per_page ) {
+	public function set_per_page( $per_page ) {
 		$this->per_page = $per_page;
 	}
-	function set_current_page( $page ) {
+	public function set_current_page( $page ) {
 		$this->page = $page;
 	}
-	function view() {
+	public function view() {
 		if( $this->page > 1 || ceil($this->total/$this->per_page) > 1 ) {
 			echo $this->wrap["before"];
 			

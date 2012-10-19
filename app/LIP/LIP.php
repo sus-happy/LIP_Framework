@@ -7,7 +7,7 @@
 
 class LIP {
 	private static $instance;
-	public function LIP() {
+	public function __construct() {
 		self::$instance =& $this;
 	}
 	public static function &get_instance() {

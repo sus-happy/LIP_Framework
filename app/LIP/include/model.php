@@ -5,14 +5,14 @@
  */
 
 class LIP_Model extends LIP_Object {
-	var $table = NULL,
-		$db    = NULL,
-		$sql   = array(),
-		$args  = array(),
-		$save  = FALSE,
-		$unsave_group = array( "SELECT", "INSERT", "UPDATE", "DELETE" );
+	private $table = NULL,
+			$db    = NULL,
+			$sql   = array(),
+			$args  = array(),
+			$save  = FALSE,
+			$unsave_group = array( "SELECT", "INSERT", "UPDATE", "DELETE" );
 	
-	function LIP_Model() {
+	public function __construct() {
 		$LIP =& get_instance();
 		$this->db = $LIP->db->get_database();
 	}
@@ -23,7 +23,7 @@ class LIP_Model extends LIP_Object {
 		--
 		SQLクエリを直接実行する
 	*/
-	function query( $query ) {
+	public function query( $query ) {
 		return $this->db->query( $query );
 	}
 
@@ -35,7 +35,7 @@ class LIP_Model extends LIP_Object {
 		SELECT文の生成
 		get_resultで前取得、get_lineで一行取得
 	*/
-	function select( $column = '*', $where = NULL ) {
+	public function select( $column = '*', $where = NULL ) {
 		$this->select_from( $this->table, $column, $where );
 	}
 	/*
@@ -48,7 +48,7 @@ class LIP_Model extends LIP_Object {
 		テーブルを指定する際はこちらを使う
 		get_resultで前取得、get_lineで一行取得
 	*/
-	function select_from( $table, $column = "*", $where = NULL ) {
+	public function select_from( $table, $column = "*", $where = NULL ) {
 		if(! empty( $where ) )
 			$this->add_where( $where );
 		$this->sql["SELECT"] = sprintf( "SELECT %s FROM `%s`", $column, $table );
@@ -60,7 +60,7 @@ class LIP_Model extends LIP_Object {
 		--
 		INSERT文の生成->実行
 	*/
-	function insert( $data ) {
+	public function insert( $data ) {
 		return $this->insert_to( $this->table, $data );
 	}
 	/*
@@ -71,7 +71,7 @@ class LIP_Model extends LIP_Object {
 		insertのラッパー
 		テーブルを指定する際はこちらを使う
 	*/
-	function insert_to( $table, $data ) {
+	public function insert_to( $table, $data ) {
 		if( is_array( $data ) || is_object( $data ) ) {
 			$fields = array();
 			$keys = array();
@@ -92,7 +92,7 @@ class LIP_Model extends LIP_Object {
 		--
 		UPDATE文の生成->実行
 	*/
-	function update( $data, $where = NULL ) {
+	public function update( $data, $where = NULL ) {
 		return $this->update_to( $this->table, $data, $where );
 	}
 	/*
@@ -104,7 +104,7 @@ class LIP_Model extends LIP_Object {
 		updateのラッパー
 		テーブルを指定する際はこちらを使う
 	*/
-	function update_to( $table, $data, $where = NULL ) {
+	public function update_to( $table, $data, $where = NULL ) {
 		if( is_array( $data ) || is_object( $data ) ) {
 			if(! empty( $where )  )
 				$this->add_where( $where );
@@ -127,7 +127,7 @@ class LIP_Model extends LIP_Object {
 		--
 		UPDATEを利用して置換処理を行う
 	*/
-	function replace( $column, $from, $to, $where = NULL ) {
+	public function replace( $column, $from, $to, $where = NULL ) {
 		return $this->replace_to( $this->table, $column, $from, $to, $where );
 	}
 	/*
@@ -141,7 +141,7 @@ class LIP_Model extends LIP_Object {
 		replaceのラッパー
 		テーブルを指定する際はこちらを使う
 	*/
-	function replace_to( $table, $column, $from, $to, $where = NULL ) {
+	public function replace_to( $table, $column, $from, $to, $where = NULL ) {
 		if(! empty( $where )  )
 			$this->add_where( $where );
 		$this->sql["UPDATE"] = sprintf( "UPDATE `%s` SET `%s` = REPLACE( `%s`, ?, ? )", $table, $column, $column );
@@ -156,7 +156,7 @@ class LIP_Model extends LIP_Object {
 		--
 		DELETE文の生成->実行
 	*/
-	function delete( $where = NULL ) {
+	public function delete( $where = NULL ) {
 		return $this->delete_from( $this->table, $where );
 	}
 	/*
@@ -167,7 +167,7 @@ class LIP_Model extends LIP_Object {
 		deleteのラッパー
 		テーブルを指定する際はこちらを使う
 	*/
-	function delete_from( $table, $where = NULL ) {
+	public function delete_from( $table, $where = NULL ) {
 		if(! empty( $where ) )
 			$this->add_where( $where );
 		$this->sql["DELETE"] = sprintf( "DELETE FROM `%s`", $table );
@@ -185,7 +185,7 @@ class LIP_Model extends LIP_Object {
 		として複数指定を行う
 		成功したらTRUEが返る
 	*/
-	function add_where( $target, $param = NULL ) {
+	public function add_where( $target, $param = NULL ) {
 		$_array = ( is_array( $target ) || is_object( $target ) );
 		$_param = ! strlen( $param );
 
@@ -213,7 +213,7 @@ class LIP_Model extends LIP_Object {
 		WHERE IN句の検索対象を追加する
 		成功したらTRUEが返る
 	*/
-	function add_where_in( $target, $param ) {
+	public function add_where_in( $target, $param ) {
 		if( is_array( $param ) ) {
 			foreach( $param as $val ) {
 				$pcnt[] = "?";
@@ -237,7 +237,7 @@ class LIP_Model extends LIP_Object {
 		として複数指定を行う
 		成功したらTRUEが返る
 	*/
-	function add_where_like( $target, $param = NULL ) {
+	public function add_where_like( $target, $param = NULL ) {
 		$_array = ( is_array( $target ) || is_object( $target ) );
 		$_param = ! strlen( $param );
 
@@ -265,7 +265,7 @@ class LIP_Model extends LIP_Object {
 		データ格納時にシリアライズしたデータを検索する
 		成功したらTRUEが返る
 	*/
-	function add_option_where( $target, $param ) {
+	public function add_option_where( $target, $param ) {
 		if( is_array( $param ) || is_object( $param ) ) {
 			preg_match( '/{(.*)}/', serialize( $param ), $match );
 			$this->add_where_like( $target, $match[1] );
@@ -284,7 +284,7 @@ class LIP_Model extends LIP_Object {
 		ORDER句を追加する
 		成功したらTRUEが返る
 	*/
-	function add_order( $target, $duration = "ASC" ) {
+	public function add_order( $target, $duration = "ASC" ) {
 		if(! in_array( $duration, array( 'ASC', 'DESC' ) ) ) {
 			$this->push_error( 'ORDER', 'Duration is in "ASC" or "DESC"' );
 			return FALSE;
@@ -302,7 +302,7 @@ class LIP_Model extends LIP_Object {
 		$keyの値を配列にした場合、$key[0]が親要素、$key[1]が子要素になる
 		$keyの値を文字列にした場合、USINGを利用する
 	*/
-	function left_join( $table, $key ) {
+	public function left_join( $table, $key ) {
 		$this->left_join_pair( $this->table, $table, $key );
 	}
 	/*
@@ -314,7 +314,7 @@ class LIP_Model extends LIP_Object {
 		left_joinのラッパー
 		テーブルを指定する際はこちらを使う
 	*/
-	function left_join_pair( $parent, $child, $key ) {
+	public function left_join_pair( $parent, $child, $key ) {
 		$this->sql["JOIN"][] = " LEFT ".$this->make_join( $parent, $child, $key );
 	}
 	/*
@@ -324,7 +324,7 @@ class LIP_Model extends LIP_Object {
 		--
 		RIGHT JOIN句を追加する
 	*/
-	function right_join( $table, $key ) {
+	public function right_join( $table, $key ) {
 		$this->right_join_pair( $this->table, $table, $key );
 	}
 	/*
@@ -336,7 +336,7 @@ class LIP_Model extends LIP_Object {
 		right_joinのラッパー
 		テーブルを指定する際はこちらを使う
 	*/
-	function right_join_pair( $parent, $child, $key ) {
+	public function right_join_pair( $parent, $child, $key ) {
 		$this->sql["JOIN"][] = " RIGHT ".$this->make_join( $parent, $child, $key );
 	}
 	/*
@@ -346,7 +346,7 @@ class LIP_Model extends LIP_Object {
 		--
 		INNER JOIN句を追加する
 	*/
-	function inner_join( $table, $key ) {
+	public function inner_join( $table, $key ) {
 		$this->inner_join_pair( $this->table, $table, $key );
 	}
 	/*
@@ -358,7 +358,7 @@ class LIP_Model extends LIP_Object {
 		inner_joinのラッパー
 		テーブルを指定する際はこちらを使う
 	*/
-	function inner_join_pair( $parent, $child, $key ) {
+	public function inner_join_pair( $parent, $child, $key ) {
 		$this->sql["JOIN"][] = " INNER ".$this->make_join( $parent, $child, $key );
 	}
 	/*
@@ -369,7 +369,7 @@ class LIP_Model extends LIP_Object {
 		--
 		left / right / inner_join_pairからJOIN区の文字列を生成する
 	*/
-	function make_join( $parent, $child, $key ) {
+	private function make_join( $parent, $child, $key ) {
 		if( is_array( $key ) ) {
 			return sprintf( "JOIN `%s` ON `%s`.`%s` = `%s`.`%s`", $child, $parent, $key[0], $child, $key[1] );
 		} else {
@@ -385,7 +385,7 @@ class LIP_Model extends LIP_Object {
 		詳細なJOIN句を追加する
 		成功したらTRUEが返る
 	*/
-	function add_join( $duration, $query, $param = NULL ) {
+	public function add_join( $duration, $query, $param = NULL ) {
 		if( in_array( $duration, array( 'LEFT', 'RIGHT', 'INNER' ) ) ) {
 			$this->push_error( 'JOIN', 'Duration is in "LEFT", "RIGHT" or "DESC"' );
 			return FALSE;
@@ -408,7 +408,7 @@ class LIP_Model extends LIP_Object {
 		GROUP句を追加する
 		成功したらTRUEが返る
 	*/
-	function add_group( $key ) {
+	public function add_group( $key ) {
 		if( is_object( $key ) ) {
 			$this->push_error( 'GROUP', 'Should be an Array or String' );
 			return FALSE;
@@ -429,7 +429,7 @@ class LIP_Model extends LIP_Object {
 		LIMIT句を追加する
 		成功したらTRUEが返る
 	*/
-	function set_limit( $limit, $offset = NULL ) {
+	public function set_limit( $limit, $offset = NULL ) {
 		$flag = TRUE;
 		if( is_int( $limit ) ) {
 			$this->limit = $limit;
@@ -453,7 +453,7 @@ class LIP_Model extends LIP_Object {
 		SELECT実行用関数 全取得
 		というか、exec実行してるだけ…格好良く言うとエイリアス
 	*/
-	function get_result() {
+	public function get_result() {
 		return $this->exec();
 	}
 	/*
@@ -461,7 +461,7 @@ class LIP_Model extends LIP_Object {
 		--
 		SELECT実行用関数 一行取得
 	*/
-	function get_line() {
+	public function get_line() {
 		$result = $this->get_result();
 		if( $result ) {
 			return $result->fetch();
@@ -475,7 +475,7 @@ class LIP_Model extends LIP_Object {
 		保存される設定は下記の通り
 		JOIN, WHERE, GROUP, ORDER, limit, offset
 	*/
-	function save_condition() {
+	public function save_condition() {
 		$this->save = TRUE;
 	}
 	/*
@@ -484,7 +484,7 @@ class LIP_Model extends LIP_Object {
 		次回実行時にも検索対象などを保存しない
 		初期設定値はこちら
 	*/
-	function unsave_condition() {
+	public function unsave_condition() {
 		$this->save = FALSE;
 	}
 	
@@ -493,7 +493,7 @@ class LIP_Model extends LIP_Object {
 		--
 		保存された内容を実行する
 	*/
-	function exec() {
+	public function exec() {
 		$query = $this->make_sql();
 		if(! empty( $query ) ) {
 			if(! empty( $this->limit ) ) {
@@ -547,7 +547,7 @@ class LIP_Model extends LIP_Object {
 		--
 		保存された内容からSQL文を組み立てる
 	*/
-	function make_sql() {
+	private function make_sql() {
 		$flag = TRUE; $sql = ""; $args = array();
 		if(! empty( $this->sql["SELECT"] ) ) {
 			$sql = $this->sql["SELECT"];
@@ -589,7 +589,7 @@ class LIP_Model extends LIP_Object {
 		--
 		プリペアドステートメント用の変数を割り当てる	
 	*/
-	function push_args( &$args, $mode ) {
+	private function push_args( &$args, $mode ) {
 		$args_group = $this->args[$mode];
 		if( $args_group ) { foreach( $args_group as $row ) {
 			$args[] = $row;
@@ -602,7 +602,7 @@ class LIP_Model extends LIP_Object {
 		内部変数を初期化する
 		save_conditionが実行されていると、一部保存される
 	*/
-	function sql_init() {
+	public function sql_init() {
 		if( $this->save ) {
 			foreach( $this->unsave_group as $unsave ) {
 				unset( $this->sql[$unsave] );
@@ -621,7 +621,7 @@ class LIP_Model extends LIP_Object {
 		--
 		SELECT文の行数を取得する
 	*/
-	function get_count() {
+	public function get_count() {
 		return $this->get_count_from( $this->table );
 	}
 	/*
@@ -630,7 +630,7 @@ class LIP_Model extends LIP_Object {
 		get_countのラッパー
 		テーブルを指定する際はこちらを使う
 	*/
-	function get_count_from( $table ) {
+	public function get_count_from( $table ) {
 		$this->select_from( $table, "COUNT(*) AS line" );
 		$result = $this->get_line();
 		return (int)$result["line"];
@@ -641,7 +641,7 @@ class LIP_Model extends LIP_Object {
 		--
 		Auto Incrementで追加した値を取得する
 	*/
-	function get_last_insertid() {
+	public function get_last_insertid() {
 		return $this->db->lastInsertId();
 	}
 }
