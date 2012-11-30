@@ -56,11 +56,11 @@ class LIP_Controler extends LIP_Object {
 		if( ! empty( $this->post[$key] ) ) {
 			$pnonce = $this->post[$key];
 			$snonce = $this->session->get_session($key);
-			
+
 			/* nonceキー削除 */
 			unset( $this->post[$key] );
 			$this->session->set_session($key, "");
-			
+
 			return ( $snonce == $pnonce );
 		} else return FALSE;
 	}

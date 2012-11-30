@@ -11,12 +11,12 @@ class LIP_Model extends LIP_Object {
 			$args  = array(),
 			$save  = FALSE,
 			$unsave_group = array( "SELECT", "INSERT", "UPDATE", "DELETE" );
-	
+
 	public function __construct() {
 		$LIP =& get_instance();
 		$this->db = $LIP->db->get_database();
 	}
-	
+
 	/*
 		PDOStatement query( $query )
 		$query String
@@ -391,11 +391,11 @@ class LIP_Model extends LIP_Object {
 			return FALSE;
 		}
 		$this->sql["JOIN"][] = sprintf( " %s JOIN %s", $duration, $query );
-		
+
 		if(! empty( $param ) ) {
 			if( is_array( $param ) || is_object( $param ) )
 				$this->args["JOIN"] = (array)$param;
-			else 
+			else
 				$this->args["JOIN"][] = $param;
 		}
 		return TRUE;
@@ -446,7 +446,7 @@ class LIP_Model extends LIP_Object {
 
 		return $flag;
 	}
-	
+
 	/*
 		PDOStatement get_result()
 		--
@@ -487,7 +487,7 @@ class LIP_Model extends LIP_Object {
 	public function unsave_condition() {
 		$this->save = FALSE;
 	}
-	
+
 	/*
 		PDOStatement exec()
 		--
@@ -536,12 +536,12 @@ class LIP_Model extends LIP_Object {
 				}
 				$sth->setFetchMode( PDO::FETCH_ASSOC );
 			}
-			
+
 			$this->sql_init();
 			return $sth;
 		} return FALSE;
 	}
-	
+
 	/*
 		String make_sql()
 		--
@@ -583,11 +583,11 @@ class LIP_Model extends LIP_Object {
 		}
 		return FALSE;
 	}
-	
+
 	/*
 		Void push_args( &$args, $mode )
 		--
-		プリペアドステートメント用の変数を割り当てる	
+		プリペアドステートメント用の変数を割り当てる
 	*/
 	private function push_args( &$args, $mode ) {
 		$args_group = $this->args[$mode];
@@ -595,7 +595,7 @@ class LIP_Model extends LIP_Object {
 			$args[] = $row;
 		} }
 	}
-	
+
 	/*
 		Void sql_init()
 		--
@@ -615,7 +615,7 @@ class LIP_Model extends LIP_Object {
 			$this->offset = NULL;
 		}
 	}
-	
+
 	/*
 		Integer get_count()
 		--

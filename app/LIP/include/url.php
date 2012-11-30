@@ -6,7 +6,7 @@
 
 class LIP_Url extends LIP_Object {
 	private $mode, $func, $class, $param;
-	
+
 	public function __construct() {
 	}
 
@@ -17,7 +17,7 @@ class LIP_Url extends LIP_Object {
 	public function get_mode() {
 		return $this->mode;
 	}
-	
+
 	/*
 	 * void url_analyze()
 	 * URLを解析 -> Controlerに渡す
@@ -56,7 +56,7 @@ class LIP_Url extends LIP_Object {
 		$param = explode( ".", $this->mode );
 		$this->mode = implode( "/", $param );
 		$this->class = "LC_".implode( "_", array_map( "ucfirst", $param ) );
-		
+
 		$file = sprintf( "%s/control/%s.php", app_dir(), $this->mode );
 		if(! file_exists($file) ) {
 			$file = sprintf( "%s/LIP/control/%s.php", app_dir(), $this->mode );
@@ -67,14 +67,14 @@ class LIP_Url extends LIP_Object {
 				$file = sprintf( "%s/LIP/control/404.php", app_dir() );
 			}
 		}
-		
+
 		require_once( $file );
 		$cls = new $this->class();
 		if( $this->func )
 			$cls->load_func( $this->func, $this->param );
 		return $cls;
 	}
-	
+
 	/*
 	 * boolean check_auth()
 	 * 認証確認 セッション（user_id）が保存されているか否か？
@@ -90,7 +90,7 @@ class LIP_Url extends LIP_Object {
 				}
 			}
 		} } else return "LOGIN";
-		
+
 		if( $ss = load_library( "session" ) ) {
 			if( $ss->get_session("user_id") || LIP_AUTH_DEBUG_MODE === TRUE ) {
 				define( 'LIP_AUTH_CHECKED', config( 'auth', 'key' ) );

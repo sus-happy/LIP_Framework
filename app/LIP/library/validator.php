@@ -24,7 +24,7 @@ class LL_Validator extends LIP_Object {
 	public function setValidateDate($check) {
 		$this->check = $check;
 	}
-	
+
 	public function checkValidation($data) {
 		$this->data = $data;
 		$flag = TRUE;
@@ -38,7 +38,7 @@ class LL_Validator extends LIP_Object {
 		} }
 		return $flag;
 	}
-	
+
 	public function checkRule($key) {
 		/*
 			require
@@ -47,7 +47,7 @@ class LL_Validator extends LIP_Object {
 		if( $this->check[$key]["require"]["check"] )
 			if( !$this->checkRequire($key) )
 				return $this->check[$key]["require"]["error"];
-		
+
 		/*
 			isset
 			指定項目入力時に必須項目
@@ -62,15 +62,15 @@ class LL_Validator extends LIP_Object {
 					if( !$this->checkRequire($key) )
 						return $this->check[$key]["isset"]["error"];
 			}
-			
+
 		/*
 			equal
 			指定項目と同値
-		*/		
+		*/
 		if( !empty( $this->check[$key]["equal"]["check"] ) )
 			if( $this->data[ $key ] !== $this->data[ $this->check[$key]["equal"]["key"] ] )
 				return $this->check[$key]["equal"]["error"];
-			
+
 		/*
 			mail
 			メールアドレスチェック
@@ -79,15 +79,15 @@ class LL_Validator extends LIP_Object {
 			if( !empty($this->data[ $key ]) && !preg_match("/^([a-z0-9_]|\-|\.|\+)+@(([a-z0-9_]|\-)+\.)+[a-z]{2,6}$/i", $this->data[ $key ]) )
 				return $this->check[$key]["mail"]["error"];
 		}
-		
+
 		/*
 			num
 			数字入力チェック
-		*/		
+		*/
 		if( !empty( $this->check[$key]["num"]["check"] ) )
 			if( !$this->checkNumeric($key) )
 				return $this->check[$key]["num"]["error"];
-		
+
 		/*
 			kana
 			カタカナ入力チェック
@@ -95,10 +95,10 @@ class LL_Validator extends LIP_Object {
 		if( !empty( $this->check[$key]["kana"]["check"] ) )
 			if( !$this->checkKana($key) )
 				return $this->check[$key]["kana"]["error"];
-		
+
 		return FALSE;
 	}
-	
+
 	private function checkRequire($key) {
 		if( count($this->check[$key]["require"]["and"])>0 ) {
 			if( $this->checkForceEmpty( $this->data[ $key ] ) ) {
@@ -124,16 +124,16 @@ class LL_Validator extends LIP_Object {
 		}
 		return FALSE;
 	}
-	
+
 	private function checkForceEmpty($str) {
 		$str = $this->spaceRemove( $str );
 		return !empty( $str );
 	}
-	
+
 	private function spaceRemove( $str ) {
 		return str_replace( " ", "", str_replace( "　", "", $str ) );
 	}
-	
+
 	private function checkNumeric($key) {
 		if( empty($this->data[ $key ]) || ( !empty($this->data[ $key ]) && strval($this->data[ $key ]) == strval(intval($this->data[ $key ])) ) ) {
 			if( count($this->check[$key]["num"]["or"])>0 ) {
@@ -151,13 +151,13 @@ class LL_Validator extends LIP_Object {
 			return TRUE;
 		} else return FALSE;
 	}
-	
+
 	private function checkKana( $key ) {
 		if( !empty($this->data[$key]) )
 			return $this->khCheck( $this->data[$key], "K" );
 		return TRUE;
 	}
-	
+
 	private function khCheck($str,$flag){
 		mb_regex_encoding($this->character);
 		switch ($flag) {
@@ -176,7 +176,7 @@ class LL_Validator extends LIP_Object {
 			default:
 				exit("specify 'H' or 'K'");
 				break;
-		}        
+		}
 		return TRUE;
 	}
 }

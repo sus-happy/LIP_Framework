@@ -21,7 +21,7 @@ function is_authorized() {
 function sanityze( $obj ) {
 	if( is_array( $obj ) || is_object( $obj ) ) {
 		foreach( $obj as $key => $val ) {
-			$obj[$key] = $this->sanityze( $val );
+			$obj[$key] = sanityze( $val );
 		}
 		return $obj;
 	} else {

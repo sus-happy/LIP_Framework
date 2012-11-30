@@ -24,7 +24,7 @@ class LIP_Hook extends LIP_Object {
 	public function run_hook( $hook ) {
 		$params = $this->_get_hook_params( $hook );
 
-		if( $this->hook[$hook] ) { 
+		if( $this->hook[$hook] ) {
 			foreach( $this->hook[$hook] as $action ) {
 				if( is_callable( $action ) )
 					call_user_func_array( $action, is_array( $params ) ? $params : array( $params ) );

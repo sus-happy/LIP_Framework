@@ -6,7 +6,7 @@
 
 class LIP_Config extends LIP_Object {
 	private $c_data = array();
-	
+
 	/* ####################################
 	   PUBLIC FUNCTION
 	#################################### */
@@ -67,7 +67,7 @@ class LIP_Config extends LIP_Object {
 	 * ファイルが存在しない場合は
 	 * "/app/view/404.php" -> "/app/LIP/view/404.php"
 	 * の順で読みに行く
-	 * 
+	 *
 	 * @todo ちょっとセキュリティ的に怪しいかも。
 	 */
 	public function get_template( $path, $ext = "php" ) {

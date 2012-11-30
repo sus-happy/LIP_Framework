@@ -9,7 +9,7 @@ class LL_Pager {
 			$total = 0,
 			$per_page = 1,
 			$page = 1;
-	
+
 	// ページャーラッパー
 	private $wrap = array(
 		'before'=> '<div class="pagination pagination-centered"><ul>',
@@ -22,7 +22,7 @@ class LL_Pager {
 		'number'=> '<li><a href="%link%">%number%</a></li>',
 		'active'=> '<li><span>%number%</span></li>',
 	);
-	
+
 	public function __construct() {
 	}
 	public function set_base_path( $path ) {
@@ -40,7 +40,7 @@ class LL_Pager {
 	public function view() {
 		if( $this->page > 1 || ceil($this->total/$this->per_page) > 1 ) {
 			echo $this->wrap["before"];
-			
+
 			if( $this->page > 1 )
 				echo str_replace( "%link%", site_url( sprintf( "%s/%s", $this->path, $this->page-1) ), $this->num_wrap["before"] );
 			for( $i=1; $i<=ceil($this->total/$this->per_page); $i++ ) {

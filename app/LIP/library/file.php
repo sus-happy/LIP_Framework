@@ -14,10 +14,10 @@ class LL_File extends LIP_Object {
 			$data = array(),
 			/* エラーメッセージ */
 			$error_message = array();
-	
+
 	public function __construct() {
 	}
-	
+
 	public function set_upload_dir( $dir ) {
 		if( is_writable( $dir ) ) {
 			$this->up_dir = $dir;
@@ -27,7 +27,7 @@ class LL_File extends LIP_Object {
 	public function get_upload_dir() {
 		return $this->up_dir;
 	}
-	
+
 	public function set_max_file_size( $size ) {
 		if( is_numeric( $size ) ) {
 			$this->max_file_size = $size;
@@ -40,17 +40,17 @@ class LL_File extends LIP_Object {
 			return TRUE;
 		} return FALSE;
 	}
-	
+
 	public function setup_data( $name, $data ) {
 		$this->data[$name] = $data;
 	}
 	public function get_data( $name ) {
 		return $this->data[$name];
 	}
-	
+
 	public function upload( $name, $up_name, $label = "ファイル" ) {
 		$flag = TRUE;
-		
+
 		if ( $_FILES[$name]["size"] !== 0 && ! empty( $_FILES[$name] ) ) {
 			$extension = pathinfo($_FILES[$name]["name"], PATHINFO_EXTENSION);
 			if( $_FILES[$name]["size"] > $this->max_file_size*1024*1024 ) {
@@ -63,7 +63,7 @@ class LL_File extends LIP_Object {
 					$this->push_error( $name, sprintf( "%sに非対応のファイル型式が選択されています（対応ファイル：%s）", $label, implode( ",", $this->file_type ) ) );
 				}
 			}
-			
+
 			if( $flag ) {
 				$file_place = sprintf( "%s/%s.%s", $this->up_dir, $up_name, $extension );
 				if( @move_uploaded_file( $_FILES[$name]["tmp_name"], $file_place ) ) {
@@ -117,7 +117,7 @@ class LL_File extends LIP_Object {
 					exit;
 				break;
 			}
-			
+
 			$w = is_numeric( $w ) ? $w : $idata["size"]["width"];
 			$h = is_numeric( $h ) ? $h : $idata["size"]["height"];
 			/* 比率無視 */
@@ -160,7 +160,7 @@ class LL_File extends LIP_Object {
 			return FALSE;
 		}
 	}
-	
+
 	public function delete( $name ) {
 		$file_place = sprintf( "%s/%s", $this->up_dir, $name );
 		return @ unlink( $file_place );

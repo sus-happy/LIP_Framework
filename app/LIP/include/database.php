@@ -7,7 +7,7 @@
 
 class LIP_Database extends LIP_Object {
 	private $db;
-	
+
 	public function __construct( $db_info = NULL ) {
 		if(! empty( $db_info ) )
 			$this->set_database( $db_info );

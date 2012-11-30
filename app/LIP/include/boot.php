@@ -12,7 +12,7 @@ class LIP_Boot extends LIP_Object {
 			$LIP,
 			$file,
 			$class;
-	
+
 	/* ####################################
 	   PUBLIC FUNCTION
 	#################################### */
@@ -38,10 +38,10 @@ class LIP_Boot extends LIP_Object {
 
 		$this->use_plugin();
 		$this->use_library();
-		
+
 		if( RIP_AUTO_CONTROL === TRUE )
 			$this->LIP->url->url_analyze();
-		
+
 		switch( $this->LIP->url->check_auth() ) {
 			case "LOGIN":
 				// It is Logined :D
@@ -56,12 +56,12 @@ class LIP_Boot extends LIP_Object {
 				return;
 			break;
 		}
-		
+
 		if( RIP_AUTO_CONTROL === TRUE )
 			return $this->LIP->url->get_control();
 		return TRUE;
 	}
-	
+
 	/* ####################################
 	   PRIVATE FUNCTION
 	#################################### */
