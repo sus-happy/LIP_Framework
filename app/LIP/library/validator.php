@@ -1,35 +1,46 @@
 <?php
-/*
- * バリデート拡張クラス
- * /app/LIP/library/validator.php
- * --
- * ValidateData
- * array( "key" =>
- *   array( "require" =>
- *     array( "check" => 1, "error" => ErrorMessage )
- *   ),
- *   array( "mail" =>
- *     array( "check" => 1, "error" => ErrorMessage )
- *   )
- * )
- */
+/* -----------------------------
+ LL_Session : バリデート拡張クラス
+ /app/LIP/library/validator.php
+ --
+ @written 12-11-30 SUSH
+ @todo クラス上でルール登録できるようにする
+----------------------------- */
+
 class LL_Validator extends LIP_Object {
 	private $check,
 			$data,
 			$character = "utf-8";
 
+	/* -----------------------------
+	 コンストラクタ
+	 Void __construct()
+	----------------------------- */
 	public function __construct() {
+		$this->disable_exeption_flag();
 	}
 
-	public function setValidateDate($check) {
+	/* -----------------------------
+	 バリデートルールの登録
+	 Void set_validate_data( $check )
+	 --
+	 @param Array $check
+	----------------------------- */
+	public function set_validate_data($check) {
 		$this->check = $check;
 	}
 
-	public function checkValidation($data) {
+	/* -----------------------------
+	 バリデーション開始
+	 Void check_validation( $data )
+	 --
+	 @param Array $check
+	----------------------------- */
+	public function check_validation($data) {
 		$this->data = $data;
 		$flag = TRUE;
 		if( !empty($this->check) ) { foreach( $this->check as $key=>$val ) {
-			if( !$err = $this->checkRule( $key ) ) {
+			if( !$err = $this->check_rule( $key ) ) {
 				/* success :) */
 			} else {
 				$flag = FALSE;
@@ -39,13 +50,19 @@ class LL_Validator extends LIP_Object {
 		return $flag;
 	}
 
-	public function checkRule($key) {
+	/* -----------------------------
+	 ルール検証
+	 Boolean check_rule( $key )
+	 --
+	 @param String $key
+	----------------------------- */
+	public function check_rule( $key ) {
 		/*
 			require
 			必須項目指定
 		*/
 		if( $this->check[$key]["require"]["check"] )
-			if( !$this->checkRequire($key) )
+			if( !$this->check_require($key) )
 				return $this->check[$key]["require"]["error"];
 
 		/*
@@ -55,11 +72,11 @@ class LL_Validator extends LIP_Object {
 		if( !empty( $this->check[$key]["isset"]["check"] ) )
 			if( !empty( $this->check[$key]["isset"]["val"] ) ) {
 				if( $this->data[ $this->check[$key]["isset"]["key"] ] == $this->check[$key]["isset"]["val"] )
-					if( !$this->checkRequire($key) )
+					if( !$this->check_require($key) )
 						return $this->check[$key]["isset"]["error"];
 			} else {
 				if( !empty( $this->data[ $this->check[$key]["isset"]["key"] ] ) )
-					if( !$this->checkRequire($key) )
+					if( !$this->check_require($key) )
 						return $this->check[$key]["isset"]["error"];
 			}
 
@@ -85,7 +102,7 @@ class LL_Validator extends LIP_Object {
 			数字入力チェック
 		*/
 		if( !empty( $this->check[$key]["num"]["check"] ) )
-			if( !$this->checkNumeric($key) )
+			if( !$this->check_numeric($key) )
 				return $this->check[$key]["num"]["error"];
 
 		/*
@@ -93,29 +110,35 @@ class LL_Validator extends LIP_Object {
 			カタカナ入力チェック
 		*/
 		if( !empty( $this->check[$key]["kana"]["check"] ) )
-			if( !$this->checkKana($key) )
+			if( !$this->check_kana($key) )
 				return $this->check[$key]["kana"]["error"];
 
 		return FALSE;
 	}
 
-	private function checkRequire($key) {
+	/* -----------------------------
+	 未入力検証
+	 Boolean check_require( $key )
+	 --
+	 @param String $key
+	----------------------------- */
+	private function check_require( $key ) {
 		if( count($this->check[$key]["require"]["and"])>0 ) {
-			if( $this->checkForceEmpty( $this->data[ $key ] ) ) {
+			if( $this->check_deep_empty( $this->data[ $key ] ) ) {
 				return TRUE;
 			} else {
 				foreach( $this->check[$key]["require"]["and"] as $aKey ) {
-					if( $this->checkForceEmpty( $this->data[ $aKey ] ) ) {
+					if( $this->check_deep_empty( $this->data[ $aKey ] ) ) {
 						return TRUE;
 					}
 				}
 			}
 			return FALSE;
 		} else {
-			if( $this->checkForceEmpty( $this->data[ $key ] ) ) {
+			if( $this->check_deep_empty( $this->data[ $key ] ) ) {
 				if( count($this->check[$key]["require"]["or"])>0 ) {
 					foreach( $this->check[$key]["require"]["or"] as $oKey ) {
-						if( $this->checkForceEmpty( $this->data[ $oKey ] ) ) {
+						if( $this->check_deep_empty( $this->data[ $oKey ] ) ) {
 						} else return FALSE;
 					}
 				}
@@ -125,16 +148,34 @@ class LL_Validator extends LIP_Object {
 		return FALSE;
 	}
 
-	private function checkForceEmpty($str) {
-		$str = $this->spaceRemove( $str );
+	/* -----------------------------
+	 空白文字も空として扱う
+	 Boolean check_deep_empty( $str )
+	 --
+	 @param String $str
+	----------------------------- */
+	private function check_deep_empty( $str ) {
+		$str = $this->space_remove( $str );
 		return !empty( $str );
 	}
 
-	private function spaceRemove( $str ) {
+	/* -----------------------------
+	 空白文字を削除
+	 String space_remove( $str )
+	 --
+	 @param String $str
+	----------------------------- */
+	private function space_remove( $str ) {
 		return str_replace( " ", "", str_replace( "　", "", $str ) );
 	}
 
-	private function checkNumeric($key) {
+	/* -----------------------------
+	 数字判定検証
+	 Boolean check_numeric( $key )
+	 --
+	 @param String $key
+	----------------------------- */
+	private function check_numeric($key) {
 		if( empty($this->data[ $key ]) || ( !empty($this->data[ $key ]) && strval($this->data[ $key ]) == strval(intval($this->data[ $key ])) ) ) {
 			if( count($this->check[$key]["num"]["or"])>0 ) {
 				foreach( $this->check[$key]["num"]["or"] as $oKey ) {
@@ -152,15 +193,29 @@ class LL_Validator extends LIP_Object {
 		} else return FALSE;
 	}
 
-	private function checkKana( $key ) {
+	/* -----------------------------
+	 カナ文字判定検証
+	 Boolean check_kana( $key )
+	 --
+	 @param String $key
+	 @todo ひらがな検証とかも作ったほうがいいかな？
+	----------------------------- */
+	private function check_kana( $key ) {
 		if( !empty($this->data[$key]) )
-			return $this->khCheck( $this->data[$key], "K" );
+			return $this->kh_check( $this->data[$key], "K" );
 		return TRUE;
 	}
 
-	private function khCheck($str,$flag){
+	/* -----------------------------
+	 カナ文字判定
+	 Boolean kh_check( $str, $flag )
+	 --
+	 @param String $str
+	 @param String $flag
+	----------------------------- */
+	private function kh_check( $str, $flag ){
 		mb_regex_encoding($this->character);
-		switch ($flag) {
+		switch ( $flag ) {
 			case "H":
 				//ひらがなチェック
 				if (!mbereg('^([あ-ん]|[ー 　]){1,16}$',$str,$this->character)) {

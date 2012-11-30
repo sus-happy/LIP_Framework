@@ -1,190 +1,195 @@
 <?php
-/*
- * モデル抽象クラス
- * /app/LIP/include/model.php
- */
+/* -----------------------------
+ LIP_Model : モデル抽象クラス
+ /app/LIP/include/model.php
+ --
+ @written 12-11-30 SUSH
+----------------------------- */
 
 class LIP_Model extends LIP_Object {
-	private $table = NULL,
-			$db    = NULL,
+	protected $table = NULL;
+	private $db    = NULL,
 			$sql   = array(),
 			$args  = array(),
 			$save  = FALSE,
 			$unsave_group = array( "SELECT", "INSERT", "UPDATE", "DELETE" );
 
+	/* -----------------------------
+	 コンストラクタ
+	 Void __construct()
+	----------------------------- */
 	public function __construct() {
 		$LIP =& get_instance();
 		$this->db = $LIP->db->get_database();
 	}
 
-	/*
-		PDOStatement query( $query )
-		$query String
-		--
-		SQLクエリを直接実行する
-	*/
+	/* -----------------------------
+	 SQLクエリを直接実行する
+	 PDOStatement query( $query )
+	 --
+	 @param String $query
+	----------------------------- */
 	public function query( $query ) {
 		return $this->db->query( $query );
 	}
 
-	/*
-		Void select( $column = '*', $where = NULL )
-		$column String = '*'
-		$where Array = NULL
-		--
-		SELECT文の生成
-		get_resultで前取得、get_lineで一行取得
-	*/
+	/* -----------------------------
+	 SELECT文の生成
+	 	get_resultで前取得、get_lineで一行取得
+	 Void select( $column = '*', $where = NULL )
+	 --
+	 @param String $column
+	 @param Array $where
+	----------------------------- */
 	public function select( $column = '*', $where = NULL ) {
 		$this->select_from( $this->table, $column, $where );
 	}
-	/*
-		Void select_from( $table, $column = '*', $where = NULL )
-		$table String
-		$column String = '*'
-		$where Array = NULL
-		--
-		selectのラッパー
-		テーブルを指定する際はこちらを使う
-		get_resultで前取得、get_lineで一行取得
-	*/
-	public function select_from( $table, $column = "*", $where = NULL ) {
-		if(! empty( $where ) )
-			$this->add_where( $where );
-		$this->sql["SELECT"] = sprintf( "SELECT %s FROM `%s`", $column, $table );
-	}
+		/* -----------------------------
+		 selectのラッパー
+		 	テーブルを指定する際はこちらを使う
+		 	get_resultで前取得、get_lineで一行取得
+		 Void select_from( $table, $column = '*', $where = NULL )
+		 --
+		 @param String $table
+		 @param String $column
+		 @param Array $where
+		----------------------------- */
+		public function select_from( $table, $column = "*", $where = NULL ) {
+			if(! empty( $where ) )
+				$this->add_where( $where );
+			$this->sql["SELECT"] = sprintf( "SELECT %s FROM `%s`", $column, $table );
+		}
 
-	/*
-		PDOStatement insert( $data )
-		$data Array
-		--
-		INSERT文の生成->実行
-	*/
+	/* -----------------------------
+	 INSERT文の生成->実行
+	 PDOStatement insert( $data )
+	 --
+	 @param Array $data
+	----------------------------- */
 	public function insert( $data ) {
 		return $this->insert_to( $this->table, $data );
 	}
-	/*
-		PDOStatement insert_to( $table, $data )
-		$table String
-		$data Array
-		--
-		insertのラッパー
-		テーブルを指定する際はこちらを使う
-	*/
-	public function insert_to( $table, $data ) {
-		if( is_array( $data ) || is_object( $data ) ) {
-			$fields = array();
-			$keys = array();
-			foreach( $data as $field=>$param ) {
-				$fields[] = "`".$field."`";
-				$keys[] = "?";
-				$this->args["INSERT"][] = $param;
-			}
-			$this->sql["INSERT"] = sprintf( "INSERT INTO `%s` (%s) VALUES(%s)", $table, implode(",", $fields), implode(",", $keys) );
-			return $this->exec();
-		} else return FALSE;
-	}
+		/* -----------------------------
+		 insertのラッパー
+		 	テーブルを指定する際はこちらを使う
+		 PDOStatement insert_to( $table, $data )
+		 --
+		 @param String $table
+		 @param Array $data
+		----------------------------- */
+		public function insert_to( $table, $data ) {
+			if( is_array( $data ) || is_object( $data ) ) {
+				$fields = array();
+				$keys = array();
+				foreach( $data as $field=>$param ) {
+					$fields[] = "`".$field."`";
+					$keys[] = "?";
+					$this->args["INSERT"][] = $param;
+				}
+				$this->sql["INSERT"] = sprintf( "INSERT INTO `%s` (%s) VALUES(%s)", $table, implode(",", $fields), implode(",", $keys) );
+				return $this->exec();
+			} else return FALSE;
+		}
 
-	/*
-		PDOStatement update( $data, $where = NULL )
-		$data Array
-		$where Array = NULL
-		--
-		UPDATE文の生成->実行
-	*/
+	/* -----------------------------
+	 UPDATE文の生成->実行
+	 PDOStatement update( $data, $where = NULL )
+	 --
+	 @param Array $data
+	 @param Array $where
+	----------------------------- */
 	public function update( $data, $where = NULL ) {
 		return $this->update_to( $this->table, $data, $where );
 	}
-	/*
-		PDOStatement update_to( $table, $data, $where = NULL )
-		$table String
-		$data Array
-		$where Array = NULL
-		--
-		updateのラッパー
-		テーブルを指定する際はこちらを使う
-	*/
-	public function update_to( $table, $data, $where = NULL ) {
-		if( is_array( $data ) || is_object( $data ) ) {
-			if(! empty( $where )  )
-				$this->add_where( $where );
-			$upparams = array();
-			foreach( $data as $field=>$param ) {
-				$upparams[] = sprintf( "`%s`=?", $field );
-				$this->args["UPDATE"][] = $param;
-			}
-			$this->sql["UPDATE"] = sprintf( "UPDATE `%s` SET %s", $table, implode(",", $upparams) );
-			return $this->exec();
-		} else return FALSE;
-	}
+		/* -----------------------------
+		 updateのラッパー
+		 	テーブルを指定する際はこちらを使う
+		 PDOStatement update_to( $table, $data, $where = NULL )
+		 --
+		 @param String $table
+		 @param Array $data
+		 @param Array $where
+		----------------------------- */
+		public function update_to( $table, $data, $where = NULL ) {
+			if( is_array( $data ) || is_object( $data ) ) {
+				if(! empty( $where )  )
+					$this->add_where( $where );
+				$upparams = array();
+				foreach( $data as $field=>$param ) {
+					$upparams[] = sprintf( "`%s`=?", $field );
+					$this->args["UPDATE"][] = $param;
+				}
+				$this->sql["UPDATE"] = sprintf( "UPDATE `%s` SET %s", $table, implode(",", $upparams) );
+				return $this->exec();
+			} else return FALSE;
+		}
 
-	/*
-		PDOStatement replace( $column, $from, $to, $where = NULL )
-		$column String
-		$from String
-		$to String
-		$where Array = NULL
-		--
-		UPDATEを利用して置換処理を行う
-	*/
+	/* -----------------------------
+	 UPDATEを利用して置換処理を行う
+	 PDOStatement replace( $column, $from, $to, $where = NULL )
+	 --
+	 @param String $column
+	 @param String $from
+	 @param String $to
+	 @param Array $where
+	----------------------------- */
 	public function replace( $column, $from, $to, $where = NULL ) {
 		return $this->replace_to( $this->table, $column, $from, $to, $where );
 	}
-	/*
-		PDOStatement replace_to( $table, $column, $from, $to, $where = NULL )
-		$table String
-		$column String
-		$from String
-		$to String
-		$where Array = NULL
-		--
-		replaceのラッパー
-		テーブルを指定する際はこちらを使う
-	*/
-	public function replace_to( $table, $column, $from, $to, $where = NULL ) {
-		if(! empty( $where )  )
-			$this->add_where( $where );
-		$this->sql["UPDATE"] = sprintf( "UPDATE `%s` SET `%s` = REPLACE( `%s`, ?, ? )", $table, $column, $column );
-		$this->args["UPDATE"][] = $from;
-		$this->args["UPDATE"][] = $to;
-		return $this->exec();
-	}
+		/* -----------------------------
+		 replaceのラッパー
+		 	テーブルを指定する際はこちらを使う
+		 PDOStatement replace_to( $table, $column, $from, $to, $where = NULL )
+		 --
+		 @param String $table
+		 @param String $column
+		 @param String $from
+		 @param String $to
+		 @param Array $where
+		----------------------------- */
+		public function replace_to( $table, $column, $from, $to, $where = NULL ) {
+			if(! empty( $where )  )
+				$this->add_where( $where );
+			$this->sql["UPDATE"] = sprintf( "UPDATE `%s` SET `%s` = REPLACE( `%s`, ?, ? )", $table, $column, $column );
+			$this->args["UPDATE"][] = $from;
+			$this->args["UPDATE"][] = $to;
+			return $this->exec();
+		}
 
-	/*
-		PDOStatement delete( $where = NULL )
-		$where Array = NULL
-		--
-		DELETE文の生成->実行
-	*/
+	/* -----------------------------
+	 DELETE文の生成->実行
+	 PDOStatement delete( $where = NULL )
+	 --
+	 @param Array $where
+	----------------------------- */
 	public function delete( $where = NULL ) {
 		return $this->delete_from( $this->table, $where );
 	}
-	/*
-		PDOStatement delete_from( $table, $where = NULL )
-		$table String
-		$where Array = NULL
-		--
-		deleteのラッパー
-		テーブルを指定する際はこちらを使う
-	*/
-	public function delete_from( $table, $where = NULL ) {
-		if(! empty( $where ) )
-			$this->add_where( $where );
-		$this->sql["DELETE"] = sprintf( "DELETE FROM `%s`", $table );
-		return $this->exec();
-	}
+		/* -----------------------------
+		 deleteのラッパー
+		 	テーブルを指定する際はこちらを使う
+		 PDOStatement delete_from( $table, $where = NULL )
+		 --
+		 $table String
+		 @param Array $where
+		----------------------------- */
+		public function delete_from( $table, $where = NULL ) {
+			if(! empty( $where ) )
+				$this->add_where( $where );
+			$this->sql["DELETE"] = sprintf( "DELETE FROM `%s`", $table );
+			return $this->exec();
+		}
 
-	/*
-		Boolean add_where( $target, $param )
-		$table Mixed
-		$param String
-		--
-		検索対象を追加する
-		$targetが配列、$paramが空の場合は、
-		add_where( $key, $val )
-		として複数指定を行う
-		成功したらTRUEが返る
-	*/
+	/* -----------------------------
+	 検索対象を追加する
+	 	$targetが配列、$paramが空の場合は、
+	 	add_where( $key, $val )
+	 	として複数指定を行う
+	 Boolean add_where( $target, $param )
+	 --
+	 @param Mixed $target
+	 @param String $param
+	----------------------------- */
 	public function add_where( $target, $param = NULL ) {
 		$_array = ( is_array( $target ) || is_object( $target ) );
 		$_param = ! strlen( $param );
@@ -205,14 +210,14 @@ class LIP_Model extends LIP_Object {
 		}
 		return TRUE;
 	}
-	/*
-		Boolean add_where_in( $target, $param )
-		$table String
-		$param Array
-		--
-		WHERE IN句の検索対象を追加する
-		成功したらTRUEが返る
-	*/
+
+	/* -----------------------------
+	 WHERE IN句の検索対象を追加する
+	 Boolean add_where_in( $target, $param )
+	 --
+	 @param String $target
+	 @param Array $param
+	----------------------------- */
 	public function add_where_in( $target, $param ) {
 		if( is_array( $param ) ) {
 			foreach( $param as $val ) {
@@ -226,17 +231,18 @@ class LIP_Model extends LIP_Object {
 		}
 		return TRUE;
 	}
-	/*
-		Boolean add_where_like( $target, $param )
-		$table Mixed
-		$param String
-		--
-		WHERE LIKE句の検索対象を追加する
-		$targetが配列、$paramが空の場合は、
-		add_where( $key, $val )
-		として複数指定を行う
-		成功したらTRUEが返る
-	*/
+
+	/* -----------------------------
+	 WHERE LIKE句の検索対象を追加する
+	 	$targetが配列、$paramが空の場合は、
+	 	add_where_like( $key, $val )
+	 	として複数指定を行う
+	 	'%'は内部処理で自動的に付与される
+	 Boolean add_where_like( $target, $param )
+	 --
+	 @param Array $target
+	 @param String $param
+	----------------------------- */
 	public function add_where_like( $target, $param = NULL ) {
 		$_array = ( is_array( $target ) || is_object( $target ) );
 		$_param = ! strlen( $param );
@@ -257,14 +263,14 @@ class LIP_Model extends LIP_Object {
 		}
 		return TRUE;
 	}
-	/*
-		Boolean add_option_where( $target, $param )
-		$table String
-		$param Array
-		--
-		データ格納時にシリアライズしたデータを検索する
-		成功したらTRUEが返る
-	*/
+
+	/* -----------------------------
+	 データ格納時にシリアライズしたデータを検索する
+	 Boolean add_option_where( $target, $param )
+	 --
+	 @param String $target
+	 @param Array $param
+	----------------------------- */
 	public function add_option_where( $target, $param ) {
 		if( is_array( $param ) || is_object( $param ) ) {
 			preg_match( '/{(.*)}/', serialize( $param ), $match );
@@ -276,14 +282,13 @@ class LIP_Model extends LIP_Object {
 		return TRUE;
 	}
 
-	/*
-		Boolean add_order( $target, $duration = 'ASC' )
-		$target String
-		$duration String = ASC ( ASC / DESC )
-		--
-		ORDER句を追加する
-		成功したらTRUEが返る
-	*/
+	/* -----------------------------
+	 ORDER句を追加する
+	 Boolean add_order( $target, $duration = 'ASC' )
+	 --
+	 @param String $target
+	 @param String $duration
+	----------------------------- */
 	public function add_order( $target, $duration = "ASC" ) {
 		if(! in_array( $duration, array( 'ASC', 'DESC' ) ) ) {
 			$this->push_error( 'ORDER', 'Duration is in "ASC" or "DESC"' );
@@ -293,82 +298,85 @@ class LIP_Model extends LIP_Object {
 		return TRUE;
 	}
 
-	/*
-		Void left_join( $table, $key )
-		$table String
-		$key Mixed
-		--
-		LEFT JOIN句を追加する
-		$keyの値を配列にした場合、$key[0]が親要素、$key[1]が子要素になる
-		$keyの値を文字列にした場合、USINGを利用する
-	*/
+	/* -----------------------------
+	 LEFT JOIN句を追加する
+	 	$keyの値を配列にした場合、$key[0]が親要素、$key[1]が子要素になる
+	 	$keyの値を文字列にした場合、USINGを利用する
+	 Void left_join( $table, $key )
+	 --
+	 @param String $table
+	 @param Mixed $key
+	----------------------------- */
 	public function left_join( $table, $key ) {
 		$this->left_join_pair( $this->table, $table, $key );
 	}
-	/*
-		Void left_join_pair( $parent, $child, $key )
-		$parent String
-		$child String
-		$key Mixed
-		--
-		left_joinのラッパー
-		テーブルを指定する際はこちらを使う
-	*/
-	public function left_join_pair( $parent, $child, $key ) {
-		$this->sql["JOIN"][] = " LEFT ".$this->make_join( $parent, $child, $key );
-	}
-	/*
-		Void right_join( $table, $key )
-		$table String
-		$key Mixed
-		--
-		RIGHT JOIN句を追加する
-	*/
+		/* -----------------------------
+		 left_joinのラッパー
+		 	テーブルを指定する際はこちらを使う
+		 Void left_join_pair( $parent, $child, $key )
+		 --
+		 @param String $parent
+		 @param String $child
+		 @param Mixed $key
+		----------------------------- */
+		public function left_join_pair( $parent, $child, $key ) {
+			$this->sql["JOIN"][] = " LEFT ".$this->make_join( $parent, $child, $key );
+		}
+
+	/* -----------------------------
+	 RIGHT JOIN句を追加する
+	 Void right_join( $table, $key )
+	 --
+	 @param String $table
+	 @param Mixed $key
+	----------------------------- */
 	public function right_join( $table, $key ) {
 		$this->right_join_pair( $this->table, $table, $key );
 	}
-	/*
-		Void right_join_pair( $parent, $child, $key )
-		$parent String
-		$child String
-		$key Mixed
-		--
-		right_joinのラッパー
-		テーブルを指定する際はこちらを使う
-	*/
-	public function right_join_pair( $parent, $child, $key ) {
-		$this->sql["JOIN"][] = " RIGHT ".$this->make_join( $parent, $child, $key );
-	}
-	/*
-		Void inner_join( $table, $key )
-		$table String
-		$key Mixed
-		--
-		INNER JOIN句を追加する
-	*/
+		/* -----------------------------
+		 right_joinのラッパー
+		 	テーブルを指定する際はこちらを使う
+		 Void right_join_pair( $parent, $child, $key )
+		 --
+		 @param String $parent
+		 @param String $child
+		 @param Mixed $key
+		----------------------------- */
+		public function right_join_pair( $parent, $child, $key ) {
+			$this->sql["JOIN"][] = " RIGHT ".$this->make_join( $parent, $child, $key );
+		}
+
+	/* -----------------------------
+	 INNER JOIN句を追加する
+	 Void inner_join( $table, $key )
+	 --
+	 @param String $table
+	 @param Mixed $key
+	----------------------------- */
 	public function inner_join( $table, $key ) {
 		$this->inner_join_pair( $this->table, $table, $key );
 	}
-	/*
-		Void inner_join_pair( $parent, $child, $key )
-		$parent String
-		$child String
-		$key Mixed
-		--
-		inner_joinのラッパー
-		テーブルを指定する際はこちらを使う
-	*/
-	public function inner_join_pair( $parent, $child, $key ) {
-		$this->sql["JOIN"][] = " INNER ".$this->make_join( $parent, $child, $key );
-	}
-	/*
-		String make_join( $parent, $child, $key )
-		$parent String
-		$child String
-		$key Mixed
-		--
-		left / right / inner_join_pairからJOIN区の文字列を生成する
-	*/
+		/* -----------------------------
+		 inner_joinのラッパー
+		 	テーブルを指定する際はこちらを使う
+		 Void inner_join_pair( $parent, $child, $key )
+		 --
+		 @param String $parent
+		 @param String $child
+		 @param Mixed $key
+		----------------------------- */
+		public function inner_join_pair( $parent, $child, $key ) {
+			$this->sql["JOIN"][] = " INNER ".$this->make_join( $parent, $child, $key );
+		}
+
+	/* -----------------------------
+	 left / right / inner_join_pairからJOIN区の文字列を生成する
+	 String make_join( $parent, $child, $key )
+	 --
+	 @param String $parent
+	 @param String $child
+	 @param Mixed $key
+	----------------------------- */
 	private function make_join( $parent, $child, $key ) {
 		if( is_array( $key ) ) {
 			return sprintf( "JOIN `%s` ON `%s`.`%s` = `%s`.`%s`", $child, $parent, $key[0], $child, $key[1] );
@@ -376,15 +384,15 @@ class LIP_Model extends LIP_Object {
 			return sprintf( "JOIN `%s` USING( `%s` )", $child, $key );
 		}
 	}
-	/*
-		Boolean add_join( $duration, $query, $param = NULL )
-		$duration ( LEFT / RIGHT / INNER )
-		$query String
-		$param Mixed
-		--
-		詳細なJOIN句を追加する
-		成功したらTRUEが返る
-	*/
+
+	/* -----------------------------
+	 詳細なJOIN句を追加する
+	 Boolean add_join( $duration, $query, $param = NULL )
+	 --
+	 @param String $duration
+	 @param String $query
+	 @param Mixed $param
+	----------------------------- */
 	public function add_join( $duration, $query, $param = NULL ) {
 		if( in_array( $duration, array( 'LEFT', 'RIGHT', 'INNER' ) ) ) {
 			$this->push_error( 'JOIN', 'Duration is in "LEFT", "RIGHT" or "DESC"' );
@@ -401,13 +409,12 @@ class LIP_Model extends LIP_Object {
 		return TRUE;
 	}
 
-	/*
-		Boolean add_group( $key )
-		$key Mixed
-		--
-		GROUP句を追加する
-		成功したらTRUEが返る
-	*/
+	/* -----------------------------
+	 GROUP句を追加する
+	 Boolean add_group( $key )
+	 --
+	 @param Mixed $key
+	----------------------------- */
 	public function add_group( $key ) {
 		if( is_object( $key ) ) {
 			$this->push_error( 'GROUP', 'Should be an Array or String' );
@@ -421,14 +428,13 @@ class LIP_Model extends LIP_Object {
 		return TRUE;
 	}
 
-	/*
-		Boolean set_limit( $limit, $offset = NULL )
-		$limit Integer
-		$offset Integer
-		--
-		LIMIT句を追加する
-		成功したらTRUEが返る
-	*/
+	/* -----------------------------
+	 LIMIT句を追加する
+	 Boolean set_limit( $limit, $offset = NULL )
+	 --
+	 @param Integer $limit
+	 @param Integer $offset
+	----------------------------- */
 	public function set_limit( $limit, $offset = NULL ) {
 		$flag = TRUE;
 		if( is_int( $limit ) ) {
@@ -447,20 +453,20 @@ class LIP_Model extends LIP_Object {
 		return $flag;
 	}
 
-	/*
-		PDOStatement get_result()
-		--
-		SELECT実行用関数 全取得
-		というか、exec実行してるだけ…格好良く言うとエイリアス
-	*/
+	/* -----------------------------
+	 SELECT実行用関数 全取得
+	 	というか、exec実行してるだけ…
+	 PDOStatement get_result()
+	----------------------------- */
 	public function get_result() {
 		return $this->exec();
 	}
-	/*
-		PDOStatement get_line()
-		--
-		SELECT実行用関数 一行取得
-	*/
+
+	/* -----------------------------
+	 SELECT実行用関数 一行取得
+	 	というか、exec実行してるだけ…
+	 PDOStatement get_line()
+	----------------------------- */
 	public function get_line() {
 		$result = $this->get_result();
 		if( $result ) {
@@ -468,31 +474,29 @@ class LIP_Model extends LIP_Object {
 		} else return FALSE;
 	}
 
-	/*
-		Void save_condition()
-		--
-		次回実行時にも検索対象などを保存する
-		保存される設定は下記の通り
-		JOIN, WHERE, GROUP, ORDER, limit, offset
-	*/
+	/* -----------------------------
+	 次回実行時にも検索対象などを保存する
+	 	保存される設定は下記の通り
+	 	JOIN, WHERE, GROUP, ORDER, LIMIT, OFFSET
+	 Void save_condition()
+	----------------------------- */
 	public function save_condition() {
 		$this->save = TRUE;
 	}
-	/*
-		Void unsave_condition()
-		--
-		次回実行時にも検索対象などを保存しない
-		初期設定値はこちら
-	*/
+
+	/* -----------------------------
+	 次回実行時にも検索対象などを保存しない
+	 	初期設定値はこちら
+	 Void unsave_condition()
+	----------------------------- */
 	public function unsave_condition() {
 		$this->save = FALSE;
 	}
 
-	/*
-		PDOStatement exec()
-		--
-		保存された内容を実行する
-	*/
+	/* -----------------------------
+	 保存された内容を実行する
+	 PDOStatement exec()
+	----------------------------- */
 	public function exec() {
 		$query = $this->make_sql();
 		if(! empty( $query ) ) {
@@ -542,11 +546,10 @@ class LIP_Model extends LIP_Object {
 		} return FALSE;
 	}
 
-	/*
-		String make_sql()
-		--
-		保存された内容からSQL文を組み立てる
-	*/
+	/* -----------------------------
+	 保存された内容からSQL文を組み立てる
+	 Array make_sql()
+	----------------------------- */
 	private function make_sql() {
 		$flag = TRUE; $sql = ""; $args = array();
 		if(! empty( $this->sql["SELECT"] ) ) {
@@ -584,11 +587,13 @@ class LIP_Model extends LIP_Object {
 		return FALSE;
 	}
 
-	/*
-		Void push_args( &$args, $mode )
-		--
-		プリペアドステートメント用の変数を割り当てる
-	*/
+	/* -----------------------------
+	 プリペアドステートメント用の変数を割り当てる
+	 Void push_args( &$args, $mode )
+	 --
+	 @param Array $args
+	 @param String $mode
+	----------------------------- */
 	private function push_args( &$args, $mode ) {
 		$args_group = $this->args[$mode];
 		if( $args_group ) { foreach( $args_group as $row ) {
@@ -596,12 +601,11 @@ class LIP_Model extends LIP_Object {
 		} }
 	}
 
-	/*
-		Void sql_init()
-		--
-		内部変数を初期化する
-		save_conditionが実行されていると、一部保存される
-	*/
+	/* -----------------------------
+	 内部変数を初期化する
+	 	save_conditionが実行されていると、一部保存される
+	 Void sql_init()
+	----------------------------- */
 	public function sql_init() {
 		if( $this->save ) {
 			foreach( $this->unsave_group as $unsave ) {
@@ -616,31 +620,30 @@ class LIP_Model extends LIP_Object {
 		}
 	}
 
-	/*
-		Integer get_count()
-		--
-		SELECT文の行数を取得する
-	*/
+	/* -----------------------------
+	 SELECT文の行数を取得する
+	 Void get_count()
+	----------------------------- */
 	public function get_count() {
 		return $this->get_count_from( $this->table );
 	}
-	/*
-		Integer get_count_from()
-		--
-		get_countのラッパー
-		テーブルを指定する際はこちらを使う
-	*/
-	public function get_count_from( $table ) {
-		$this->select_from( $table, "COUNT(*) AS line" );
-		$result = $this->get_line();
-		return (int)$result["line"];
-	}
+		/* -----------------------------
+		 SELECT文の行数を取得する
+		 	テーブルを指定する際はこちらを使う
+		 Void get_count_from( $table )
+		 --
+		 @param String $table
+		----------------------------- */
+		public function get_count_from( $table ) {
+			$this->select_from( $table, "COUNT(*) AS line" );
+			$result = $this->get_line();
+			return (int)$result["line"];
+		}
 
-	/*
-		Integer get_last_insertid()
-		--
-		Auto Incrementで追加した値を取得する
-	*/
+	/* -----------------------------
+	 Auto Incrementで追加した値を取得する
+	 Integer get_last_insertid()
+	----------------------------- */
 	public function get_last_insertid() {
 		return $this->db->lastInsertId();
 	}

@@ -1,27 +1,41 @@
 <?php
-/*
- * URL解析クラス
- * /app/LIP/include/url.php
- */
+/* -----------------------------
+ LIP_Url : URL解析クラス
+ /app/LIP/include/url.php
+ --
+ @written 12-11-30 SUSH
+----------------------------- */
 
 class LIP_Url extends LIP_Object {
 	private $mode, $func, $class, $param;
 
+	/* -----------------------------
+	 コンストラクタ
+	 Void __construct()
+	----------------------------- */
 	public function __construct() {
 	}
 
-	public function get_func() {
-		return $this->func;
-	}
-
+	/* -----------------------------
+	 読込中のコントローラ内関数名取得
+	 String get_func()
+	----------------------------- */
 	public function get_mode() {
 		return $this->mode;
 	}
 
-	/*
-	 * void url_analyze()
-	 * URLを解析 -> Controlerに渡す
-	 */
+	/* -----------------------------
+	 読込中のコントローラ名取得
+	 String get_mode()
+	----------------------------- */
+	public function get_func() {
+		return $this->func;
+	}
+
+	/* -----------------------------
+	 URLを解析 -> Controlerに渡す
+	 Void url_analyze()
+	----------------------------- */
 	public function url_analyze() {
 		switch( config("site", "analyze") ) {
 			case "PATH_INFO":
@@ -44,11 +58,15 @@ class LIP_Url extends LIP_Object {
 		}
 	}
 
-	/*
-	 * class get_control( $mode=NULL, $func=NULL )
-	 * Controlerクラスを取得
-	 * $mode:クラス名、$func:メソッド名
-	 */
+	/* -----------------------------
+	 Controlerクラスを取得
+	 Class get_control( $mode=NULL, $func=NULL )
+	 --
+	 @param String $mode
+	 	クラス名
+	 @param String $func
+	 	メソッド名
+	----------------------------- */
 	public function get_control( $mode=NULL, $func=NULL ) {
 		if( $mode ) $this->mode = $mode;
 		if( $func ) $this->func = $func;
@@ -75,10 +93,12 @@ class LIP_Url extends LIP_Object {
 		return $cls;
 	}
 
-	/*
-	 * boolean check_auth()
-	 * 認証確認 セッション（user_id）が保存されているか否か？
-	 */
+	/* -----------------------------
+	 Controlerクラスを取得
+	 	認証確認 セッション（user_id）が保存されているか否か？
+	 	@todo 確認方法を変更する
+	 Boolean check_auth()
+	----------------------------- */
 	public function check_auth() {
 		$pass = config( "auth", "check" );
 		if( $pass ) { foreach( $pass as $p ) {

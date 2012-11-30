@@ -1,8 +1,10 @@
 <?php
-/*
- * ファイル読み書き拡張クラス
- * /app/LIP/library/file.php
- */
+/* -----------------------------
+ LL_File : ファイル読み書き拡張クラス
+ /app/LIP/library/file.php
+ --
+ @written 12-11-30 SUSH
+----------------------------- */
 
 class LL_File extends LIP_Object {
 			/* アップロードディレクトリ */
@@ -15,25 +17,54 @@ class LL_File extends LIP_Object {
 			/* エラーメッセージ */
 			$error_message = array();
 
+	/* -----------------------------
+	 コンストラクタ
+	 Void __construct()
+	----------------------------- */
 	public function __construct() {
+		$this->disable_exeption_flag();
 	}
 
+	/* -----------------------------
+	 アップロードディレクトリの設定
+	 Boolean set_upload_dir( $dir )
+	 --
+	 @param String $dir
+	----------------------------- */
 	public function set_upload_dir( $dir ) {
 		if( is_writable( $dir ) ) {
 			$this->up_dir = $dir;
 			return TRUE;
 		} else return FALSE;
 	}
+
+	/* -----------------------------
+	 アップロードディレクトリの取得
+	 Void get_upload_dir()
+	----------------------------- */
 	public function get_upload_dir() {
 		return $this->up_dir;
 	}
 
+	/* -----------------------------
+	 アップロード制限サイズの指定
+	 Boolean set_max_file_size( $size )
+	 --
+	 @param Integer $size
+	----------------------------- */
 	public function set_max_file_size( $size ) {
 		if( is_numeric( $size ) ) {
 			$this->max_file_size = $size;
 			return TRUE;
 		} return FALSE;
 	}
+
+	/* -----------------------------
+	 アップロードファイル制限タイプの指定
+	 Boolean set_file_type( $type )
+	 --
+	 @param Array $type
+	----------------------------- */
 	public function set_file_type( $type ) {
 		if( is_array( $type ) ) {
 			$this->file_type = $type;
@@ -41,13 +72,40 @@ class LL_File extends LIP_Object {
 		} return FALSE;
 	}
 
+	/* -----------------------------
+	 何だっけこれ…
+	 	@todo 思い出す
+	 Void setup_data( $type )
+	 --
+	 @param String $name
+	 @param Mixed $data
+	----------------------------- */
 	public function setup_data( $name, $data ) {
 		$this->data[$name] = $data;
 	}
+
+	/* -----------------------------
+	 何だっけこれ…
+	 	@todo 思い出す
+	 Boolean get_data( $name )
+	 --
+	 @param String $name
+	----------------------------- */
 	public function get_data( $name ) {
 		return $this->data[$name];
 	}
 
+	/* -----------------------------
+	 アップロード処理
+	 Boolean upload( $name, $up_name, $label = "ファイル" )
+	 --
+	 @param String $name
+	 	input type="file"のname属性
+	 @param String $up_name
+	 	保存する名前
+	 @param String $label
+	 	エラーメッセージに表示する名称
+	----------------------------- */
 	public function upload( $name, $up_name, $label = "ファイル" ) {
 		$flag = TRUE;
 
@@ -85,15 +143,31 @@ class LL_File extends LIP_Object {
 		return $flag;
 	}
 
+	/* -----------------------------
+	 コピー
+	 Boolean copy( $from, $to )
+	 --
+	 @param String $from
+	 @param String $to
+	----------------------------- */
 	public function copy( $from, $to ) {
 		$from_file = sprintf( "%s/%s", $this->up_dir, $from );
 		$to_file = sprintf( "%s/%s", $this->up_dir, $to );
 		return @ copy( $from_file, $to_file );
 	}
 
-	/*
-	 * サムネイルコピー
-	 */
+	/* -----------------------------
+	 サイズを変更してコピー
+	 Boolean thum_copy( $idata, $toname, $w = NULL, $h = NULL, $q = 90, $f = FALSE )
+	 --
+	 @param Array $idata
+	 @param String $toname
+	 @param Integer $w
+	 @param Integer $h
+	 @param Integer $q
+	 @param Boolean $f
+	 @todo idataは微妙な気がする…
+	----------------------------- */
 	public function thum_copy( $idata, $toname, $w = NULL, $h = NULL, $q = 90, $f = FALSE ) {
 		if( empty( $q ) ) $q = 90;
 
@@ -161,6 +235,12 @@ class LL_File extends LIP_Object {
 		}
 	}
 
+	/* -----------------------------
+	 削除
+	 Boolean delete( $name )
+	 --
+	 @param String $name
+	----------------------------- */
 	public function delete( $name ) {
 		$file_place = sprintf( "%s/%s", $this->up_dir, $name );
 		return @ unlink( $file_place );

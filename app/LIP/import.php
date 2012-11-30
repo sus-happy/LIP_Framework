@@ -1,8 +1,10 @@
 <?php
-/*
- * インポートファイル
- * /app/include/import.php
- */
+/* -----------------------------
+ インポートファイル
+ /app/import.php
+ --
+ @written 12-11-30 SUSH
+----------------------------- */
 do {
 	$dir = dirname( __FILE__ );
 	require_once( $dir."/LIP.php" );

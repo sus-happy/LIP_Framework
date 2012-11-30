@@ -1,11 +1,13 @@
 <?php
-/*
- * 初期読み込みクラス
- * /app/LIP/include/boot.php
- * --
- * PATH_INFOを解析してコントローラーに割り当てる
- * index.php/control/func/val1/val2...
- */
+/* -----------------------------
+ LIP_Boot : 初期読み込みクラス
+ 	URLを解析してコントローラーに割り当てる
+ 	例）index.php/control/func/val1/val2
+ 	 -> LC_Control->func( val1, val2 )
+ /app/LIP/include/boot.php
+ --
+ @written 12-11-30 SUSH
+----------------------------- */
 
 class LIP_Boot extends LIP_Object {
 	private $control,
@@ -13,9 +15,12 @@ class LIP_Boot extends LIP_Object {
 			$file,
 			$class;
 
-	/* ####################################
-	   PUBLIC FUNCTION
-	#################################### */
+	/* -----------------------------
+	 コンストラクタ
+	 Void __construct()
+	 --
+	 @todo コンストラクタで色々やりすぎ？
+	----------------------------- */
 	public function __construct() {
 		$this->LIP =& get_instance();
 
@@ -59,16 +64,12 @@ class LIP_Boot extends LIP_Object {
 
 		if( RIP_AUTO_CONTROL === TRUE )
 			return $this->LIP->url->get_control();
-		return TRUE;
 	}
 
-	/* ####################################
-	   PRIVATE FUNCTION
-	#################################### */
-	/*
-	 * void use_plugin()
-	 * プラグインファイル読み込み
-	 */
+	/* -----------------------------
+	 プラグインファイルの読み込み
+	 Void use_plugin()
+	----------------------------- */
 	private function use_plugin() {
 		$dir = config( "plugin", "dir" );
 		foreach ( config( "plugin", "use" ) as $value ) {
@@ -78,10 +79,10 @@ class LIP_Boot extends LIP_Object {
 		}
 	}
 
-	/*
-	 * void use_library()
-	 * ライブラリーファイル読み込み
-	 */
+	/* -----------------------------
+	 ライブラリーファイル読み込み
+	 Void use_library()
+	----------------------------- */
 	private function use_library() {
 		foreach ( config( "library", "use" ) as $value ) {
 			load_library( $value );
