@@ -38,10 +38,13 @@ class LIP_Database extends LIP_Object {
 	----------------------------- */
 	private function set_database( $db_info ) {
 		try {
+			require_once( app_dir().'/LIP/include/database/common.php' );
 			if( $db_info['type'] === 'sqlite' ) {
-				$this->db = new PDO( sprintf( '%s:%s', $db_info['type'], $db_info['dbname'] ) );
+				require_once( app_dir().'/LIP/include/database/sqlite.php' );
+				$this->db = new LIP_Database_Sqlite( sprintf( '%s:%s', $db_info['type'], $db_info['dbname'] ) );
 			} else {
-				$this->db = new PDO(
+				require_once( app_dir().'/LIP/include/database/mysql.php' );
+				$this->db = new LIP_Database_Mysql(
 					sprintf( '%s:host=%s;dbname=%s',
 						$db_info["type"],
 						$db_info["host"],
