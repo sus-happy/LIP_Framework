@@ -4,10 +4,13 @@
  /app/LIP.php
  --
  @written 12-11-30 SUSH
+ @last updated 12-12-18 SUSH
 ----------------------------- */
 
 class LIP {
 	private static $instance;
+
+	public static $version = '0.0.2';
 
 	/* -----------------------------
 	 コンストラクタ

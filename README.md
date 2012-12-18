@@ -18,7 +18,7 @@ Since 12/07/01
     	function LC_Contoroler() {
     		parent::LIP_Controler();
     	}
-    
+
     	function action( $foo, $bar ) {
     		// Action
     	}
@@ -27,7 +27,7 @@ Since 12/07/01
 if use modrewrite
 
     http://example.com/controler/action/foo/bar/
-    
+
 if use pathinfo
 
     http://example.com/index.php/controler/action/foo/bar/
@@ -43,6 +43,10 @@ if use pathinfo
 in Contoroler Class
 
     $model = $this->load_model( "model" );
+
+#### *Caution
+
+Using Database Server is 'MySQL' or 'SQLite' only...
 
 ### View
 
@@ -66,3 +70,4 @@ or
 ## History
 
 - 2012/07/09 v0.0.1 Published
+- 2012/12/18 v0.0.2 Published

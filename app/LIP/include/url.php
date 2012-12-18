@@ -42,7 +42,7 @@ class LIP_Url extends LIP_Object {
 				$url = getenv("PATH_INFO");
 			break;
 			case "MOD_REWRITE":
-				$url = str_replace( base_dir(), "", $_SERVER["REQUEST_URI"] );
+				$url = str_replace( str_replace( getenv('DOCUMENT_ROOT'), '', base_dir() ), "", $_SERVER["REQUEST_URI"] );
 			break;
 		}
 		if(! empty( $url ) && $url !== "/" ) {

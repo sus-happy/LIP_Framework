@@ -18,6 +18,26 @@ function _H( $str ) {
 }
 
 /* -----------------------------
+ エスケープして出力
+ String _E( $str )
+ --
+ @param String $str
+----------------------------- */
+function _E( $str ) {
+	echo _H( $str );
+}
+
+/* -----------------------------
+ エスケープせずに出力
+ String _EC( $str )
+ --
+ @param String $str
+----------------------------- */
+function _R( $str ) {
+	echo $str;
+}
+
+/* -----------------------------
  HTMLタグ生成
  String makeHTML( $tag, $attributes=NULL, $inner=NULL, $flag=TRUE )
  --
